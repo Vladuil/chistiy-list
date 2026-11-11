@@ -1,0 +1,2895 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0b0f19">
+    <title>Чистый Лист — Отказ от вредного и полезные привычки</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Canvas Confetti for celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        darkBg: '#0b0f19',
+                        darkCard: '#151c2c',
+                        darkBorder: '#232f46'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232f46;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+        .glass-card {
+            background: rgba(21, 28, 44, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .habit-card-glow {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .habit-card-glow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px -10px rgba(16, 185, 129, 0.15);
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.65; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-30 glass-card border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <i class="ph-fill ph-leaf text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+                        Чистый Лист
+                        <span class="hidden md:inline-block text-xs font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            Свобода и саморазвитие
+                        </span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="handleImportFile(event)">
+                <button onclick="exportData()" class="p-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors border border-slate-700/50 flex items-center gap-1.5 text-xs font-medium" title="Сохранить резервную копию (JSON)">
+                    <i class="ph ph-download-simple text-base text-sky-400"></i>
+                    <span class="hidden lg:inline">Бэкап</span>
+                </button>
+                <button onclick="document.getElementById('importFileInput').click()" class="p-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors border border-slate-700/50 flex items-center gap-1.5 text-xs font-medium" title="Загрузить данные из JSON-файла">
+                    <i class="ph ph-upload-simple text-base text-purple-400"></i>
+                    <span class="hidden lg:inline">Импорт</span>
+                </button>
+                <button onclick="openGoodHabitModal()" class="flex items-center gap-1.5 px-3 sm:px-3.5 py-2.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 font-semibold text-xs sm:text-sm transition-all active:scale-95">
+                    <i class="ph-bold ph-book-open-text text-base"></i>
+                    <span class="hidden sm:inline">+ Полезная</span>
+                </button>
+                <button onclick="openHabitModal()" class="flex items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-emerald-500/20 transition-all active:scale-95">
+                    <i class="ph-bold ph-shield-plus text-base"></i>
+                    <span class="hidden sm:inline">+ Отказ</span>
+                </button>
+                <!-- Account / Auth Profile Button -->
+                <button onclick="openAuthModal()" id="headerAuthBtn" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition-all text-xs sm:text-sm font-semibold">
+                    <span id="headerAvatar" class="text-base">👤</span>
+                    <span id="headerUserName" class="max-w-[90px] sm:max-w-[130px] truncate">Войти</span>
+                    <span id="cloudStatusDot" class="w-2 h-2 rounded-full bg-amber-400" title="Статус синхронизации"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+
+        <!-- Motivational Words Banner -->
+        <section aria-label="Мотивация дня" class="glass-card rounded-2xl p-4 sm:p-5 border border-emerald-500/25 bg-gradient-to-r from-emerald-500/10 via-slate-900/90 to-amber-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-start sm:items-center gap-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/10">
+                    <i class="ph-fill ph-sparkle text-2xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Мотивация на сегодня</span>
+                        <span class="text-[11px] text-slate-500">•</span>
+                        <span id="bannerQuoteAuthor" class="text-xs font-medium text-emerald-400">Авраам Линкольн</span>
+                    </div>
+                    <p id="bannerQuoteText" class="text-sm sm:text-base font-semibold text-white leading-snug transition-opacity duration-200">
+                        «Дисциплина — это выбор между тем, чего вы хотите сейчас, и тем, чего вы хотите больше всего.»
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                <button type="button" onclick="nextQuote()" class="px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold border border-slate-700 transition-all active:scale-95 flex items-center gap-1.5" title="Показать другую мотивационную мысль">
+                    <i class="ph-bold ph-arrows-clockwise text-amber-400 text-sm"></i>
+                    <span>Другая мысль</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Hero Summary Stats -->
+        <section aria-label="Общая статистика" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+            <!-- Active Bad Habits & Check-ins -->
+            <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-start justify-between">
+                <div>
+                    <p class="text-xs sm:text-sm font-medium text-slate-400">Чистых дней (Отказ)</p>
+                    <p id="statTotalCleanDays" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">0</p>
+                    <p id="statBestStreak" class="text-xs text-emerald-400 mt-1.5 flex items-center gap-1">
+                        <i class="ph-fill ph-fire"></i> <span>Рекорд: 0 дн.</span>
+                    </p>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                    <i class="ph-fill ph-shield-check text-xl sm:text-2xl"></i>
+                </div>
+            </div>
+
+            <!-- Total Money Saved -->
+            <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-start justify-between">
+                <div>
+                    <p class="text-xs sm:text-sm font-medium text-slate-400">Сэкономлено денег</p>
+                    <p id="statMoneySaved" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">0 ₽</p>
+                    <p id="statMoneyPerMonth" class="text-xs text-amber-400 mt-1.5 flex items-center gap-1">
+                        <i class="ph-fill ph-trend-up"></i> <span>~0 ₽ / мес</span>
+                    </p>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                    <i class="ph-fill ph-piggy-bank text-xl sm:text-2xl"></i>
+                </div>
+            </div>
+
+            <!-- Good Habits Time Today -->
+            <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-start justify-between">
+                <div>
+                    <p class="text-xs sm:text-sm font-medium text-slate-400">Полезное сегодня</p>
+                    <p id="statGoodTodayMinutes" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">0 мин</p>
+                    <p id="statGoodTodayGoals" class="text-xs text-sky-400 mt-1.5 flex items-center gap-1">
+                        <i class="ph-fill ph-target"></i> <span>Выполнено: 0 из 0</span>
+                    </p>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0">
+                    <i class="ph-fill ph-book-open-text text-xl sm:text-2xl"></i>
+                </div>
+            </div>
+
+            <!-- Total Invested & Saved Time -->
+            <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-start justify-between">
+                <div>
+                    <p class="text-xs sm:text-sm font-medium text-slate-400">Вложено в развитие</p>
+                    <p id="statTotalGoodHours" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">0 ч</p>
+                    <p id="statTimeSaved" class="text-xs text-purple-400 mt-1.5 flex items-center gap-1">
+                        <i class="ph-fill ph-hourglass-high"></i> <span>+0 ч спасено от привычек</span>
+                    </p>
+                </div>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
+                    <i class="ph-fill ph-rocket-launch text-xl sm:text-2xl"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filter & Action Bar -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="switchTab('all')" id="tabBtnAll" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 text-white border border-slate-700 transition-all flex items-center gap-2">
+                    <i class="ph-bold ph-squares-four text-emerald-400"></i>
+                    <span>Все привычки</span>
+                    <span id="badgeCountAll" class="px-1.5 py-0.5 text-[11px] rounded-lg bg-slate-900 text-slate-300">0</span>
+                </button>
+                <button onclick="switchTab('bad')" id="tabBtnBad" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all flex items-center gap-2">
+                    <i class="ph-bold ph-shield-check text-rose-400"></i>
+                    <span>Вредные (Отказ)</span>
+                    <span id="badgeCountBad" class="px-1.5 py-0.5 text-[11px] rounded-lg bg-slate-900 text-slate-400">0</span>
+                </button>
+                <button onclick="switchTab('good')" id="tabBtnGood" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all flex items-center gap-2">
+                    <i class="ph-bold ph-book-bookmark text-sky-400"></i>
+                    <span>Полезные (Развитие)</span>
+                    <span id="badgeCountGood" class="px-1.5 py-0.5 text-[11px] rounded-lg bg-slate-900 text-slate-400">0</span>
+                </button>
+                <button onclick="switchTab('friends')" id="tabBtnFriends" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all flex items-center gap-2">
+                    <i class="ph-bold ph-users-three text-purple-400"></i>
+                    <span>Друзья и Команда</span>
+                    <span id="badgeCountFriends" class="px-1.5 py-0.5 text-[11px] rounded-lg bg-slate-900 text-slate-400">0</span>
+                </button>
+                <button onclick="switchTab('achievements')" id="tabBtnAchievements" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all flex items-center gap-2">
+                    <i class="ph-bold ph-medal text-amber-400"></i>
+                    <span>Достижения и журнал</span>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2 text-xs text-slate-400">
+                <span id="syncIndicatorPing" class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span id="syncStatusText">Автосохранение активно</span>
+            </div>
+        </div>
+
+        <!-- TAB 1: Habits & Good Routines List -->
+        <section id="tabContentHabits" class="space-y-8">
+            <!-- Empty state -->
+            <div id="emptyState" class="hidden glass-card rounded-3xl p-10 text-center max-w-lg mx-auto my-8 border border-dashed border-slate-700">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-4">
+                    <i class="ph-fill ph-plant text-3xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white mb-2">Ваш список пока пуст</h2>
+                <p class="text-slate-400 text-sm mb-6">
+                    Добавьте вредную привычку, от которой хотите отказаться, или полезное занятие на каждый день (например, чтение книги 30 минут в день).
+                </p>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button onclick="openHabitModal()" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm shadow-lg shadow-emerald-500/20 transition-all">
+                        + Цель отказа
+                    </button>
+                    <button onclick="openGoodHabitModal()" class="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold text-sm shadow-lg shadow-sky-500/20 transition-all">
+                        + Полезная привычка
+                    </button>
+                    <button onclick="restoreDemoData()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-sm transition-all">
+                        Загрузить примеры
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section: Good Daily Habits -->
+            <div id="goodHabitsSection" class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                            <i class="ph-fill ph-sun-horizon text-sky-400 text-xl"></i>
+                            Полезные привычки на каждый день
+                        </h2>
+                        <p class="text-xs text-slate-400">Включайте живой таймер сессии или отмечайте сколько минут вы уделили занятию</p>
+                    </div>
+                    <button onclick="openGoodHabitModal()" class="text-xs font-semibold text-sky-400 hover:text-sky-300 flex items-center gap-1">
+                        <i class="ph-bold ph-plus"></i> Добавить занятие
+                    </button>
+                </div>
+                <div id="goodHabitsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+            </div>
+
+            <!-- Section: Bad Habits to Quit -->
+            <div id="badHabitsSection" class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                            <i class="ph-fill ph-shield-check text-emerald-400 text-xl"></i>
+                            Отказ от вредных привычек
+                        </h2>
+                        <p class="text-xs text-slate-400">Живой счётчик свободы, экономия средств и календарь дней без срывов</p>
+                    </div>
+                    <button onclick="openHabitModal()" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+                        <i class="ph-bold ph-plus"></i> Добавить отказ
+                    </button>
+                </div>
+                <div id="habitsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+            </div>
+        </section>
+
+        <!-- TAB 2: Milestones & History Log -->
+        <section id="tabContentAchievements" class="hidden space-y-8">
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="ph-fill ph-medal text-amber-400 text-xl"></i>
+                            Витрина рубежей воздержания
+                        </h2>
+                        <p class="text-sm text-slate-400">Медали открываются автоматически, когда любая ваша привычка достигает нужного срока</p>
+                    </div>
+                </div>
+                <div id="milestonesShowcase" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
+            </div>
+
+            <!-- Relapse & Check-in History Log -->
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="ph-fill ph-clock-counter-clockwise text-sky-400 text-xl"></i>
+                            История событий и заметок
+                        </h3>
+                        <p class="text-sm text-slate-400">Записи о начале пути, сессиях чтения, отметках и перезапусках</p>
+                    </div>
+                    <button onclick="clearHistoryLog()" class="text-xs text-slate-400 hover:text-rose-400 transition-colors">
+                        Очистить журнал
+                    </button>
+                </div>
+                <div id="historyLogList" class="space-y-2.5 max-h-96 overflow-y-auto pr-1"></div>
+            </div>
+        </section>
+
+        <!-- TAB 3: Friends & Shared Leaderboard -->
+        <section id="tabContentFriends" class="hidden space-y-6">
+            <div class="glass-card rounded-3xl p-6 sm:p-7 border border-purple-500/20">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/15 text-purple-300 text-xs font-semibold mb-2 border border-purple-500/30">
+                            <i class="ph-fill ph-users-three"></i> Совместный прогресс
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white">Зал славы друзей</h2>
+                        <p class="text-sm text-slate-400 mt-1">
+                            Здесь отображаются все зарегистрированные участники (вы, ваша девушка и друзья). Поддерживайте друг друга на пути к целям!
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="openAuthModal()" class="px-4 py-2.5 rounded-xl bg-purple-500 hover:bg-purple-400 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-purple-500/20 transition-all flex items-center gap-2">
+                            <i class="ph-bold ph-user-circle-plus text-base"></i>
+                            <span id="friendsTabAuthActionText">Мой профиль / Вход</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="friendsLeaderboardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Floating Active Session Timer Bar -->
+    <div id="floatingSessionBar" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 hidden w-[95%] max-w-2xl">
+        <div class="glass-card border border-sky-500/40 bg-slate-900/95 rounded-2xl px-4 py-3 shadow-2xl shadow-sky-500/15 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-xl relative shrink-0">
+                    <span id="floatingSessionIcon">📚</span>
+                    <span id="floatingSessionPulse" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span id="floatingSessionStatusBadge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Идёт сессия</span>
+                        <span id="floatingSessionGoalHint" class="text-[11px] text-slate-400 hidden sm:inline"></span>
+                    </div>
+                    <h4 id="floatingSessionTitle" class="text-sm font-bold text-white leading-tight mt-0.5">Чтение книги</h4>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3 ml-auto">
+                <div id="floatingSessionClock" class="font-mono text-xl sm:text-2xl font-extrabold text-sky-400 tracking-wider bg-slate-950/90 px-3 py-1 rounded-xl border border-slate-800">
+                    00:00:00
+                </div>
+                <button type="button" id="floatingPauseBtn" onclick="toggleActiveSessionPause()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition-all active:scale-95">
+                    <i class="ph-fill ph-pause text-sm"></i>
+                    <span class="hidden sm:inline">Пауза</span>
+                </button>
+                <button type="button" onclick="openFinishSessionModal()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition-all active:scale-95">
+                    <i class="ph-fill ph-check-fat text-sm"></i>
+                    <span>Завершить</span>
+                </button>
+                <button type="button" onclick="cancelActiveSession()" class="p-2 rounded-xl bg-slate-800/80 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-slate-700/60 transition-colors" title="Отменить сессию без сохранения">
+                    <i class="ph-bold ph-x text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Finish Session & Save Time -->
+    <div id="finishSessionModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="glass-card border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-2xl">
+                        <span id="finishModalIcon">📚</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Сессия завершена</span>
+                        <h3 id="finishModalTitle" class="text-lg font-bold text-white leading-tight">Записать результат</h3>
+                    </div>
+                </div>
+                <button onclick="closeFinishSessionModal()" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+
+            <form onsubmit="confirmFinishSession(event)" class="space-y-4">
+                <div class="rounded-2xl bg-slate-900/90 border border-slate-800 p-4 text-center">
+                    <p class="text-xs text-slate-400 mb-1">Время по таймеру сессии</p>
+                    <p id="finishModalElapsedText" class="font-mono text-2xl font-extrabold text-sky-400">00:25:10</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Сколько минут добавить к сегодняшнему дню? *</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="finishModalMinutesInput" min="1" max="1440" required class="w-full h-11 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold text-base focus:outline-none focus:border-emerald-500">
+                        <span class="text-xs text-slate-400 shrink-0 pr-2">мин.</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">Вы можете скорректировать минуты перед сохранением</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Заметка о сессии (что прочитали / сделали)</label>
+                    <input type="text" id="finishModalNoteInput" placeholder="Например: Прочитал 25 страниц, глава 3..." class="w-full h-10 px-3.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+                    <button type="button" onclick="closeFinishSessionModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium">
+                        Продолжить таймер
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 flex items-center gap-1.5">
+                        <i class="ph-bold ph-check"></i>
+                        <span>Сохранить в прогресс</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 py-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+                <p>Чистый Лист — трекер привычек для вас и ваших друзей.</p>
+                <span id="footerUserIdDisplay" class="font-mono text-[10px] text-slate-600 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">Локальный режим</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="openQuoteModal()" class="hover:text-amber-300 transition-colors flex items-center gap-1">
+                    <i class="ph ph-sparkle"></i> Мотивация
+                </button>
+                <button onclick="exportData()" class="hover:text-slate-300 transition-colors flex items-center gap-1">
+                    <i class="ph ph-download-simple"></i> Экспорт данных
+                </button>
+                <button onclick="restoreDemoData()" class="hover:text-slate-300 transition-colors flex items-center gap-1">
+                    <i class="ph ph-arrows-clockwise"></i> Сбросить к демо
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL: Registration / Login / Cloud Profile -->
+    <div id="authModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="glass-card border border-slate-700 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                        <i class="ph-fill ph-user-circle text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white leading-tight">Личный аккаунт</h3>
+                        <p class="text-xs text-slate-400">Синхронизация между телефоном и ПК</p>
+                    </div>
+                </div>
+                <button onclick="closeAuthModal()" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+
+            <!-- View when user IS logged into an account -->
+            <div id="authLoggedInView" class="hidden space-y-5">
+                <div class="rounded-2xl bg-slate-900/90 border border-slate-800 p-4 flex items-center gap-4">
+                    <div id="profileViewAvatar" class="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-3xl shrink-0">
+                        🦁
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Аккаунт активен
+                        </span>
+                        <h4 id="profileViewName" class="text-lg font-bold text-white truncate mt-1">Пользователь</h4>
+                        <p class="text-xs text-slate-400 truncate">Логин: <strong id="profileViewLogin" class="text-slate-200 font-mono">user</strong></p>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl bg-slate-900/60 border border-slate-800 p-4 space-y-3">
+                    <label class="flex items-center justify-between cursor-pointer gap-3">
+                        <div>
+                            <span class="text-sm font-semibold text-white block">Показывать меня во вкладке «Друзья»</span>
+                            <span class="text-xs text-slate-400">Друзья увидят ваше имя, чистые дни и минуты полезных привычек (без личных заметок)</span>
+                        </div>
+                        <input type="checkbox" id="shareLeaderboardToggle" onchange="togglePublicLeaderboard(this.checked)" checked class="w-5 h-5 accent-emerald-500 rounded cursor-pointer shrink-0">
+                    </label>
+                </div>
+
+                <div class="rounded-2xl bg-sky-500/10 border border-sky-500/20 p-3.5 text-xs text-sky-200 leading-relaxed">
+                    <i class="ph-fill ph-devices text-sky-400 mr-1"></i>
+                    Чтобы зайти в свой профиль с телефона или другого компьютера, просто откройте сайт и войдите с вашим логином и паролем.
+                </div>
+
+                <div class="flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
+                    <button type="button" onclick="logoutAccount()" class="px-4 py-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-colors">
+                        <i class="ph-bold ph-sign-out"></i>
+                        <span>Выйти из аккаунта</span>
+                    </button>
+                    <button type="button" onclick="closeAuthModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-semibold">
+                        Готово
+                    </button>
+                </div>
+            </div>
+
+            <!-- View when user is Guest (Login / Register form) -->
+            <div id="authFormView" class="space-y-4">
+                <div class="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800">
+                    <button type="button" id="authTabLogin" onclick="switchAuthMode('login')" class="py-2 rounded-lg text-xs font-bold bg-emerald-500 text-slate-950 transition-all">
+                        Вход в аккаунт
+                    </button>
+                    <button type="button" id="authTabRegister" onclick="switchAuthMode('register')" class="py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all">
+                        Регистрация
+                    </button>
+                </div>
+
+                <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                    <div id="registerExtraFields" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1.5">Ваше имя (для профиля и друзей) *</label>
+                            <input type="text" id="authDisplayName" placeholder="Например: Алексей или Маша" class="w-full h-11 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1.5">Выберите аватарку</label>
+                            <div class="flex items-center gap-2 flex-wrap" id="avatarPickerGroup">
+                                <button type="button" onclick="selectAvatar('🦁')" data-avatar="🦁" class="avatar-btn w-10 h-10 rounded-xl bg-slate-800 border-2 border-emerald-500 text-xl flex items-center justify-center">🦁</button>
+                                <button type="button" onclick="selectAvatar('🌸')" data-avatar="🌸" class="avatar-btn w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 text-xl flex items-center justify-center">🌸</button>
+                                <button type="button" onclick="selectAvatar('🚀')" data-avatar="🚀" class="avatar-btn w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 text-xl flex items-center justify-center">🚀</button>
+                                <button type="button" onclick="selectAvatar('🦊')" data-avatar="🦊" class="avatar-btn w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 text-xl flex items-center justify-center">🦊</button>
+                                <button type="button" onclick="selectAvatar('🐱')" data-avatar="🐱" class="avatar-btn w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 text-xl flex items-center justify-center">🐱</button>
+                                <button type="button" onclick="selectAvatar('⚡')" data-avatar="⚡" class="avatar-btn w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 text-xl flex items-center justify-center">⚡</button>
+                                <button type="button" onclick="selectAvatar('👑')" data-avatar="👑" class="avatar-btn w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 text-xl flex items-center justify-center">👑</button>
+                                <button type="button" onclick="selectAvatar('🐼')" data-avatar="🐼" class="avatar-btn w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 text-xl flex items-center justify-center">🐼</button>
+                            </div>
+                            <input type="hidden" id="authAvatarInput" value="🦁">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Логин (латиницей или email) *</label>
+                        <input type="text" id="authLoginInput" required placeholder="Например: alexey" autocomplete="username" class="w-full h-11 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Пароль *</label>
+                        <input type="password" id="authPasswordInput" required minlength="4" placeholder="Минимум 4 символа" autocomplete="current-password" class="w-full h-11 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <p id="authErrorMsg" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl px-3 py-2"></p>
+
+                    <button type="submit" id="authSubmitBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all">
+                        Войти в свои привычки
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Add / Edit Habit -->
+    <div id="habitModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="glass-card border border-slate-700 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-5">
+                <h3 id="modalTitle" class="text-xl font-bold text-white">Новая цель отказа</h3>
+                <button onclick="closeHabitModal()" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+
+            <form id="habitForm" onsubmit="saveHabitForm(event)" class="space-y-5">
+                <input type="hidden" id="habitId">
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Быстрый шаблон</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="fillPreset('Курение / Вейп', '🚬', 'emerald', 250, 45, 'Дышать полной грудью и беречь здоровье')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            🚬 Курение
+                        </button>
+                        <button type="button" onclick="fillPreset('Сладкое и сахар', '🍩', 'rose', 200, 15, 'Чистая кожа и стабильная энергия без скачков сахара')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            🍩 Сахар
+                        </button>
+                        <button type="button" onclick="fillPreset('Алкоголь', '🍷', 'amber', 300, 60, 'Ясный ум, крепкий сон и отличное утро')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            🍷 Алкоголь
+                        </button>
+                        <button type="button" onclick="fillPreset('Думскроллинг / Соцсети', '📱', 'indigo', 0, 90, 'Вернуть концентрацию и реальную жизнь')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            📱 Думскроллинг
+                        </button>
+                        <button type="button" onclick="fillPreset('Фастфуд и снеки', '🍔', 'amber', 350, 20, 'Лёгкость в теле и полезное питание')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            🍔 Фастфуд
+                        </button>
+                        <button type="button" onclick="fillPreset('Видеоигры ночами', '🎮', 'purple', 0, 120, 'Высыпаться и развивать реальные проекты')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            🎮 Игры
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-3">
+                    <div class="col-span-1">
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Иконка</label>
+                        <select id="habitIcon" class="w-full h-11 rounded-xl bg-slate-900 border border-slate-700 text-center text-xl focus:outline-none focus:border-emerald-500">
+                            <option value="🚭">🚭</option>
+                            <option value="🚬">🚬</option>
+                            <option value="🍩">🍩</option>
+                            <option value="🍷">🍷</option>
+                            <option value="🍺">🍺</option>
+                            <option value="📱">📱</option>
+                            <option value="🍔">🍔</option>
+                            <option value="🎮">🎮</option>
+                            <option value="☕">☕</option>
+                            <option value="🛒">🛒</option>
+                            <option value="🎲">🎲</option>
+                            <option value="🍫">🍫</option>
+                            <option value="⚡">⚡</option>
+                        </select>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">От чего отказываемся? *</label>
+                        <input type="text" id="habitName" required placeholder="Например: Курение, Сладкое на ночь..." class="w-full h-11 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Дата и время начала отказа *</label>
+                    <input type="datetime-local" id="habitStartDate" required class="w-full h-11 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
+                    <p class="text-[11px] text-slate-400 mt-1">От этой точки ведется отсчет непрерывной серии в реальном времени</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Экономия в день (₽)</label>
+                        <div class="relative">
+                            <input type="number" id="habitDailyCost" min="0" step="10" value="200" placeholder="0" class="w-full h-11 pl-4 pr-8 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
+                            <span class="absolute right-3 top-3 text-slate-400 text-sm">₽</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Экономия времени (мин/день)</label>
+                        <div class="relative">
+                            <input type="number" id="habitDailyMinutes" min="0" max="1440" step="5" value="30" placeholder="0" class="w-full h-11 pl-4 pr-12 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500">
+                            <span class="absolute right-3 top-3 text-slate-400 text-xs">мин</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Ваша главная мотивация (почему это важно)</label>
+                    <input type="text" id="habitMotivation" placeholder="Хочу чувствовать бодрость по утрам и накопить на отпуск" class="w-full h-11 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-2">Цветовой акцент карточки</label>
+                    <div class="flex items-center gap-3" id="colorPickerGroup">
+                        <button type="button" onclick="selectColor('emerald')" data-color="emerald" class="color-btn w-8 h-8 rounded-full bg-emerald-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-white"></button>
+                        <button type="button" onclick="selectColor('sky')" data-color="sky" class="color-btn w-8 h-8 rounded-full bg-sky-500 opacity-60 hover:opacity-100"></button>
+                        <button type="button" onclick="selectColor('indigo')" data-color="indigo" class="color-btn w-8 h-8 rounded-full bg-indigo-500 opacity-60 hover:opacity-100"></button>
+                        <button type="button" onclick="selectColor('purple')" data-color="purple" class="color-btn w-8 h-8 rounded-full bg-purple-500 opacity-60 hover:opacity-100"></button>
+                        <button type="button" onclick="selectColor('rose')" data-color="rose" class="color-btn w-8 h-8 rounded-full bg-rose-500 opacity-60 hover:opacity-100"></button>
+                        <button type="button" onclick="selectColor('amber')" data-color="amber" class="color-btn w-8 h-8 rounded-full bg-amber-500 opacity-60 hover:opacity-100"></button>
+                    </div>
+                    <input type="hidden" id="habitColor" value="emerald">
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                    <button type="button" onclick="closeHabitModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium">
+                        Отмена
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold shadow-lg shadow-emerald-500/25">
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Add / Edit Good Daily Habit -->
+    <div id="goodHabitModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="glass-card border border-slate-700 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-5">
+                <h3 id="goodModalTitle" class="text-xl font-bold text-white">Новая полезная привычка</h3>
+                <button onclick="closeGoodHabitModal()" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+
+            <form id="goodHabitForm" onsubmit="saveGoodHabitForm(event)" class="space-y-5">
+                <input type="hidden" id="goodHabitId">
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Быстрый выбор занятия</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="fillGoodPreset('Чтение книги', '📚', 'sky', 30, 'Расширять кругозор и читать минимум по 20–30 страниц в день')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            📚 Чтение книги
+                        </button>
+                        <button type="button" onclick="fillGoodPreset('Тренировка / Зарядка', '🏋️', 'emerald', 45, 'Сильное тело, тонус мышц и заряд бодрости')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            🏋️ Спорт / Зарядка
+                        </button>
+                        <button type="button" onclick="fillGoodPreset('Изучение иностранного языка', '🇬🇧', 'indigo', 25, 'Свободно общаться и смотреть контент в оригинале')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            🇬🇧 Языки
+                        </button>
+                        <button type="button" onclick="fillGoodPreset('Программирование / Учеба', '💻', 'purple', 60, 'Освоить новые навыки и расти профессионально')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            💻 Учеба / Код
+                        </button>
+                        <button type="button" onclick="fillGoodPreset('Медитация и дыхание', '🧘', 'amber', 15, 'Спокойствие ума, осознанность и снижение стресса')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            🧘 Медитация
+                        </button>
+                        <button type="button" onclick="fillGoodPreset('Прогулка на свежем воздухе', '🚶', 'emerald', 40, 'Отдых для глаз и качественный сон')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 transition-colors">
+                            🚶 Прогулка
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-3">
+                    <div class="col-span-1">
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Иконка</label>
+                        <select id="goodHabitIcon" class="w-full h-11 rounded-xl bg-slate-900 border border-slate-700 text-center text-xl focus:outline-none focus:border-sky-500">
+                            <option value="📚">📚</option>
+                            <option value="📖">📖</option>
+                            <option value="🏋️">🏋️</option>
+                            <option value="🏃">🏃</option>
+                            <option value="🧘">🧘</option>
+                            <option value="🇬🇧">🇬🇧</option>
+                            <option value="💻">💻</option>
+                            <option value="✍️">✍️</option>
+                            <option value="🎨">🎨</option>
+                            <option value="🎸">🎸</option>
+                            <option value="🚶">🚶</option>
+                            <option value="💧">💧</option>
+                        </select>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Название полезной привычки *</label>
+                        <input type="text" id="goodHabitName" required placeholder="Например: Чтение книги каждый день" class="w-full h-11 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-sky-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Ежедневная цель по времени (минут в день) *</label>
+                    <div class="relative">
+                        <input type="number" id="goodHabitTargetMinutes" required min="5" max="720" step="5" value="30" class="w-full h-11 pl-4 pr-20 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-sky-500">
+                        <span class="absolute right-3.5 top-3 text-slate-400 text-xs">мин / день</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">День засчитывается в ударную серию, когда вы набираете или превышаете эту норму</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Заметка или цель (какую книгу читаем / к чему стремимся)</label>
+                    <input type="text" id="goodHabitMotivation" placeholder="Например: Прочитать 12 книг за год, сейчас читаю «Атомные привычки»" class="w-full h-11 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-sky-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-2">Цветовой акцент</label>
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="selectGoodColor('sky')" data-good-color="sky" class="good-color-btn w-8 h-8 rounded-full bg-sky-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-white"></button>
+                        <button type="button" onclick="selectGoodColor('emerald')" data-good-color="emerald" class="good-color-btn w-8 h-8 rounded-full bg-emerald-500 opacity-60 hover:opacity-100"></button>
+                        <button type="button" onclick="selectGoodColor('indigo')" data-good-color="indigo" class="good-color-btn w-8 h-8 rounded-full bg-indigo-500 opacity-60 hover:opacity-100"></button>
+                        <button type="button" onclick="selectGoodColor('purple')" data-good-color="purple" class="good-color-btn w-8 h-8 rounded-full bg-purple-500 opacity-60 hover:opacity-100"></button>
+                        <button type="button" onclick="selectGoodColor('amber')" data-good-color="amber" class="good-color-btn w-8 h-8 rounded-full bg-amber-500 opacity-60 hover:opacity-100"></button>
+                        <button type="button" onclick="selectGoodColor('rose')" data-good-color="rose" class="good-color-btn w-8 h-8 rounded-full bg-rose-500 opacity-60 hover:opacity-100"></button>
+                    </div>
+                    <input type="hidden" id="goodHabitColor" value="sky">
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                    <button type="button" onclick="closeGoodHabitModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium">
+                        Отмена
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-sm font-semibold shadow-lg shadow-sky-500/25">
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Log Time for Good Habit on Specific Day -->
+    <div id="logTimeModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="glass-card border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2.5">
+                    <span id="logTimeModalIcon" class="text-2xl">📚</span>
+                    <div>
+                        <h3 id="logTimeModalTitle" class="text-lg font-bold text-white leading-tight">Записать время</h3>
+                        <p id="logTimeModalDateLabel" class="text-xs text-sky-400 font-medium">Сегодня</p>
+                    </div>
+                </div>
+                <button onclick="closeLogTimeModal()" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+
+            <form onsubmit="saveLoggedTimeForm(event)" class="space-y-4">
+                <input type="hidden" id="logTimeHabitId">
+                <input type="hidden" id="logTimeDateKey">
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-2">Быстро прибавить ко времени за этот день:</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button type="button" onclick="adjustModalMinutes(10)" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-semibold text-xs border border-slate-700 transition-colors">+10 мин</button>
+                        <button type="button" onclick="adjustModalMinutes(15)" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-semibold text-xs border border-slate-700 transition-colors">+15 мин</button>
+                        <button type="button" onclick="adjustModalMinutes(30)" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-semibold text-xs border border-slate-700 transition-colors">+30 мин</button>
+                        <button type="button" onclick="adjustModalMinutes(60)" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-semibold text-xs border border-slate-700 transition-colors">+60 мин</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Всего потрачено минут в этот день *</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="logTimeMinutesInput" min="0" max="1440" required class="w-full h-11 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold text-base focus:outline-none focus:border-sky-500">
+                        <button type="button" onclick="document.getElementById('logTimeMinutesInput').value = 0" class="px-3 h-11 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 text-xs border border-slate-700" title="Обнулить день">
+                            Сброс (0)
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Короткая заметка за день (необязательно)</label>
+                    <input type="text" id="logTimeNoteInput" placeholder="Например: Прочитал 2 главы, выписал идеи..." class="w-full h-10 px-3.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-sky-500">
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+                    <button type="button" onclick="closeLogTimeModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium">
+                        Отмена
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold text-sm shadow-lg shadow-sky-500/20">
+                        Сохранить время
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Relapse / Reset Counter -->
+    <div id="relapseModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="glass-card border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-4">
+                <i class="ph-fill ph-arrow-counter-clockwise text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Случился срыв?</h3>
+            <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                Не корите себя! Отказ от привычки — это процесс, и срывы случаются у большинства людей на пути к победе. Главное — ваш прошлый опыт и отмеченные чистые дни никуда не пропадут, а рекорд сохранится.
+            </p>
+            <input type="hidden" id="relapseHabitId">
+            <div class="mb-5">
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Что спровоцировало срыв? (необязательно, для анализа)</label>
+                <input type="text" id="relapseReason" placeholder="Например: Сильный стресс на работе, компания друзей..." class="w-full h-10 px-3.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500">
+            </div>
+            <div class="flex items-center justify-end gap-3">
+                <button onclick="closeRelapseModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium">
+                    Отмена
+                </button>
+                <button onclick="confirmRelapse()" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-sm transition-colors">
+                    Сбросить таймер и начать заново
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Delete Confirmation -->
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="glass-card border border-slate-700 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center">
+            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto mb-4">
+                <i class="ph-fill ph-trash text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Удалить привычку?</h3>
+            <p class="text-sm text-slate-400 mb-6">Все данные, таймер и календарь отметок для этой привычки будут удалены безвозвратно.</p>
+            <input type="hidden" id="deleteHabitId">
+            <input type="hidden" id="deleteHabitType" value="bad">
+            <div class="flex items-center justify-center gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium">
+                    Отмена
+                </button>
+                <button onclick="confirmDeleteHabit()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-sm font-semibold">
+                    Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Daily Motivation Quote -->
+    <div id="quoteModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="glass-card border border-slate-700 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl text-center relative">
+            <button onclick="closeQuoteModal()" class="absolute top-4 right-4 p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white">
+                <i class="ph-bold ph-x"></i>
+            </button>
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-4">
+                <i class="ph-fill ph-sparkle text-3xl"></i>
+            </div>
+            <h3 class="text-xs font-bold uppercase tracking-widest text-amber-400 mb-3">Мысль для укрепления духа</h3>
+            <blockquote id="quoteText" class="text-lg font-semibold text-white leading-relaxed mb-3">
+                «Дисциплина — это выбор между тем, чего вы хотите сейчас, и тем, чего вы хотите больше всего.»
+            </blockquote>
+            <p id="quoteAuthor" class="text-xs text-slate-400 mb-6">— Авраам Линкольн</p>
+            <button onclick="nextQuote()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium border border-slate-700 transition-colors flex items-center justify-center gap-2">
+                <i class="ph-bold ph-arrows-clockwise"></i> Другая цитата
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <script>
+        // ==========================================
+        // КОНСТАНТЫ И СПРАВОЧНИКИ
+        // ==========================================
+        const STORAGE_KEY = 'chistiy_list_habits_v3';
+        const ACTIVE_SESSION_KEY = 'chistiy_list_active_session_v1';
+        const LOCAL_USERS_KEY = 'chistiy_list_local_users_v1';
+        const CURRENT_USER_KEY = 'chistiy_list_current_user_v1';
+        const AUTH_TOKEN_KEY = 'chistiy_list_auth_token_v1';
+        const DEFAULT_DOC_TITLE = 'Чистый Лист — Отказ от вредного и полезные привычки';
+
+        const MILESTONES = [
+            { days: 1, title: 'Первый шаг', desc: '24 часа позади!', icon: '🌱' },
+            { days: 3, title: '3 дня чистоты', desc: 'Пик тяги пройден', icon: '🔥' },
+            { days: 7, title: 'Первая неделя', desc: 'Целых 7 дней свободы', icon: '🛡️' },
+            { days: 14, title: 'Две недели', desc: 'Формируется новая нейронная связь', icon: '⚡' },
+            { days: 21, title: '21 день', desc: 'Привычка теряет хватку', icon: '🌟' },
+            { days: 30, title: '1 месяц', desc: 'Мощный рубеж осознанности', icon: '🏅' },
+            { days: 60, title: '2 месяца', desc: 'Новый образ жизни', icon: '💎' },
+            { days: 90, title: '90 дней', desc: 'Полная перезагрузка дофамина', icon: '👑' },
+            { days: 180, title: 'Полгода', desc: 'Невероятная стойкость духа', icon: '🚀' },
+            { days: 365, title: '1 год свободы', desc: 'Абсолютная победа над собой', icon: '🏆' }
+        ];
+
+        const QUOTES = [
+            { text: '«Дисциплина — это выбор между тем, чего вы хотите сейчас, и тем, чего вы хотите больше всего.»', author: 'Авраам Линкольн' },
+            { text: '«Каждое утро, когда вы просыпаетесь без сожалений о вчерашнем вечере — это подарок самому себе.»', author: 'Чистый Лист' },
+            { text: '«Секрет перемен состоит в том, чтобы сосредоточить всю свою энергию не на борьбе со старым, а на созидании нового.»', author: 'Сократ' },
+            { text: '«Тяга длится всего несколько минут, а гордость за то, что вы устояли — весь оставшийся день.»', author: 'Практика осознанности' },
+            { text: '«Мы есть то, что мы делаем постоянно. Совершенство, следовательно, не действие, а привычка.»', author: 'Аристотель' },
+            { text: '«Даже путь в тысячу ли начинается с первого шага и одного чистого дня.»', author: 'Лао-Цзы' },
+            { text: '«Привычки — это сложные проценты самосовершенствования. Один процент к лучшему каждый день меняет всё.»', author: 'Джеймс Клир' },
+            { text: '«Тот, кто побеждает других — силён. Тот, кто побеждает самого себя — всемогущ.»', author: 'Лао-Цзы' },
+            { text: '«Не обязательно быть великим, чтобы начать, но нужно начать, чтобы стать великим.»', author: 'Зиг Зиглар' },
+            { text: '«Каждый отказ от минутной слабости делает ваш характер крепче, а ум — свободнее.»', author: 'Философия стоиков' },
+            { text: '«Чтение для ума — то же, что физические упражнения для тела. Даже 20 минут в день открывают новые миры.»', author: 'Джозеф Аддисон' },
+            { text: '«Будущее зависит от того, что вы делаете сегодня, а не от того, что собираетесь сделать завтра.»', author: 'Махатма Ганди' }
+        ];
+
+        const COLOR_STYLES = {
+            emerald: {
+                badgeBg: 'bg-emerald-500/15',
+                badgeText: 'text-emerald-400',
+                badgeBorder: 'border-emerald-500/30',
+                barBg: 'bg-gradient-to-r from-emerald-500 to-teal-400',
+                btnBg: 'bg-emerald-500 hover:bg-emerald-400 text-slate-950',
+                dayChecked: 'bg-emerald-500 text-slate-950 border-emerald-400 font-bold shadow-sm shadow-emerald-500/30'
+            },
+            sky: {
+                badgeBg: 'bg-sky-500/15',
+                badgeText: 'text-sky-400',
+                badgeBorder: 'border-sky-500/30',
+                barBg: 'bg-gradient-to-r from-sky-500 to-cyan-400',
+                btnBg: 'bg-sky-500 hover:bg-sky-400 text-slate-950',
+                dayChecked: 'bg-sky-500 text-slate-950 border-sky-400 font-bold shadow-sm shadow-sky-500/30'
+            },
+            indigo: {
+                badgeBg: 'bg-indigo-500/15',
+                badgeText: 'text-indigo-400',
+                badgeBorder: 'border-indigo-500/30',
+                barBg: 'bg-gradient-to-r from-indigo-500 to-blue-400',
+                btnBg: 'bg-indigo-500 hover:bg-indigo-400 text-white',
+                dayChecked: 'bg-indigo-500 text-white border-indigo-400 font-bold shadow-sm shadow-indigo-500/30'
+            },
+            purple: {
+                badgeBg: 'bg-purple-500/15',
+                badgeText: 'text-purple-400',
+                badgeBorder: 'border-purple-500/30',
+                barBg: 'bg-gradient-to-r from-purple-500 to-fuchsia-400',
+                btnBg: 'bg-purple-500 hover:bg-purple-400 text-white',
+                dayChecked: 'bg-purple-500 text-white border-purple-400 font-bold shadow-sm shadow-purple-500/30'
+            },
+            rose: {
+                badgeBg: 'bg-rose-500/15',
+                badgeText: 'text-rose-400',
+                badgeBorder: 'border-rose-500/30',
+                barBg: 'bg-gradient-to-r from-rose-500 to-pink-400',
+                btnBg: 'bg-rose-500 hover:bg-rose-400 text-white',
+                dayChecked: 'bg-rose-500 text-white border-rose-400 font-bold shadow-sm shadow-rose-500/30'
+            },
+            amber: {
+                badgeBg: 'bg-amber-500/15',
+                badgeText: 'text-amber-400',
+                badgeBorder: 'border-amber-500/30',
+                barBg: 'bg-gradient-to-r from-amber-500 to-yellow-400',
+                btnBg: 'bg-amber-500 hover:bg-amber-400 text-slate-950',
+                dayChecked: 'bg-amber-500 text-slate-950 border-amber-400 font-bold shadow-sm shadow-amber-500/30'
+            }
+        };
+
+        // ==========================================
+        // СОСТОЯНИЕ ПРИЛОЖЕНИЯ И СЕТИ
+        // ==========================================
+        let appState = {
+            habits: [],
+            goodHabits: [],
+            history: []
+        };
+
+        let activeSession = null;
+        let currentTab = 'all';
+        let currentQuoteIdx = 0;
+        let authMode = 'login';
+        let backendAvailable = false;
+        let currentUser = null;
+        let serverLeaderboard = [];
+
+        // ==========================================
+        // ВСПОМОГАТЕЛЬНЫЕ ФОРМАТТЕРЫ
+        // ==========================================
+        function formatDateKey(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function getTodayKey() {
+            return formatDateKey(new Date());
+        }
+
+        function toLocalDatetimeInputValue(timestamp) {
+            const d = new Date(timestamp);
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        function getLastNDays(n = 14) {
+            const days = [];
+            const today = new Date();
+            const shortWeekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+            for (let i = n - 1; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - i);
+                days.push({
+                    key: formatDateKey(d),
+                    dayNum: d.getDate(),
+                    weekday: shortWeekdays[d.getDay()],
+                    isToday: i === 0
+                });
+            }
+            return days;
+        }
+
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function formatClockHMS(totalSeconds) {
+            const sec = Math.max(0, Math.floor(totalSeconds));
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60);
+            const s = sec % 60;
+            return [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
+        }
+
+        function getElapsedBreakdown(startDateMs) {
+            const diffMs = Math.max(0, Date.now() - Number(startDateMs || Date.now()));
+            const totalSeconds = Math.floor(diffMs / 1000);
+            const totalDaysFloat = diffMs / (1000 * 60 * 60 * 24);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return { diffMs, totalSeconds, totalDaysFloat, days, hours, minutes, seconds };
+        }
+
+        // ==========================================
+        // ДЕМО-ДАННЫЕ ПО УМОЛЧАНИЮ
+        // ==========================================
+        function createDefaultState() {
+            const now = Date.now();
+            const fiveDaysAgo = now - (5 * 24 * 60 * 60 * 1000) - (4 * 3600 * 1000);
+            const twelveDaysAgo = now - (12 * 24 * 60 * 60 * 1000) - (2 * 3600 * 1000);
+
+            const checkins5 = {};
+            for (let i = 0; i < 5; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                checkins5[formatDateKey(d)] = true;
+            }
+
+            const checkins12 = {};
+            for (let i = 0; i < 12; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                checkins12[formatDateKey(d)] = true;
+            }
+
+            const readingLogs = {};
+            const sportLogs = {};
+            for (let i = 1; i <= 4; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const k = formatDateKey(d);
+                readingLogs[k] = { minutes: 35, note: 'Читал перед сном' };
+                if (i % 2 === 1) {
+                    sportLogs[k] = { minutes: 45, note: 'Разминка и тренировка' };
+                }
+            }
+            readingLogs[getTodayKey()] = { minutes: 20, note: 'Утреннее чтение' };
+
+            return {
+                habits: [
+                    {
+                        id: 'bad-demo-1',
+                        name: 'Курение / Вейп',
+                        icon: '🚭',
+                        startDate: fiveDaysAgo,
+                        dailyCost: 250,
+                        dailyMinutes: 45,
+                        motivation: 'Чистые лёгкие, бодрость с утра и независимость от никотина',
+                        color: 'emerald',
+                        checkIns: checkins5,
+                        bestStreakDays: 5,
+                        relapseCount: 0
+                    },
+                    {
+                        id: 'bad-demo-2',
+                        name: 'Сладкое и сахар на ночь',
+                        icon: '🍩',
+                        startDate: twelveDaysAgo,
+                        dailyCost: 180,
+                        dailyMinutes: 15,
+                        motivation: 'Стабильная энергия без скачков сахара и крепкий сон',
+                        color: 'rose',
+                        checkIns: checkins12,
+                        bestStreakDays: 12,
+                        relapseCount: 1
+                    }
+                ],
+                goodHabits: [
+                    {
+                        id: 'good-demo-1',
+                        name: 'Чтение книги каждый день',
+                        icon: '📚',
+                        targetMinutes: 30,
+                        motivation: 'Прочитать 12 книг за год, развивать мышление и концентрацию',
+                        color: 'sky',
+                        logs: readingLogs
+                    },
+                    {
+                        id: 'good-demo-2',
+                        name: 'Домашняя тренировка / Зарядка',
+                        icon: '🏋️',
+                        targetMinutes: 40,
+                        motivation: 'Держать тело в тонусе и заряжаться энергией',
+                        color: 'emerald',
+                        logs: sportLogs
+                    }
+                ],
+                history: [
+                    {
+                        id: 'hist-1',
+                        timestamp: Date.now() - 3600 * 1000 * 3,
+                        type: 'good_log',
+                        habitName: '📚 Чтение книги каждый день',
+                        text: 'Записано 20 мин. (Утреннее чтение)'
+                    },
+                    {
+                        id: 'hist-2',
+                        timestamp: fiveDaysAgo,
+                        type: 'start',
+                        habitName: '🚭 Курение / Вейп',
+                        text: 'Поставлена цель отказа от привычки'
+                    }
+                ]
+            };
+        }
+
+        // ==========================================
+        // ЗАГРУЗКА, СОХРАНЕНИЕ И СИНХРОНИЗАЦИЯ С СЕРВЕРОМ
+        // ==========================================
+        function getUserSummarySnapshot() {
+            const todayKey = getTodayKey();
+            let cleanDays = 0;
+            appState.habits.forEach(h => {
+                cleanDays += calculateBadHabitDays(h);
+            });
+            let goodTodayMinutes = 0;
+            let totalGoodMins = 0;
+            appState.goodHabits.forEach(g => {
+                goodTodayMinutes += Number(g.logs?.[todayKey]?.minutes || 0);
+                totalGoodMins += calculateGoodHabitTotalMinutes(g);
+            });
+            return {
+                cleanDays,
+                goodTodayMinutes,
+                totalGoodHours: Number((totalGoodMins / 60).toFixed(1)),
+                habitsCount: appState.habits.length + appState.goodHabits.length
+            };
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    appState = {
+                        habits: Array.isArray(parsed.habits) ? parsed.habits : [],
+                        goodHabits: Array.isArray(parsed.goodHabits) ? parsed.goodHabits : [],
+                        history: Array.isArray(parsed.history) ? parsed.history : []
+                    };
+                } else {
+                    appState = createDefaultState();
+                    saveState();
+                }
+            } catch (e) {
+                appState = createDefaultState();
+            }
+
+            try {
+                const rawSession = localStorage.getItem(ACTIVE_SESSION_KEY);
+                if (rawSession) {
+                    activeSession = JSON.parse(rawSession);
+                }
+            } catch (e) {
+                activeSession = null;
+            }
+
+            try {
+                const savedUser = localStorage.getItem(CURRENT_USER_KEY);
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                }
+            } catch (e) {
+                currentUser = null;
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                syncCurrentUserToLocalRegistry();
+                pushStateToServerIfAuthenticated();
+            } catch (e) {
+                console.error('Ошибка сохранения состояния:', e);
+            }
+        }
+
+        function saveActiveSessionState() {
+            try {
+                if (activeSession) {
+                    localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(activeSession));
+                } else {
+                    localStorage.removeItem(ACTIVE_SESSION_KEY);
+                }
+            } catch (e) {
+                console.error('Ошибка сохранения сессии:', e);
+            }
+        }
+
+        async function initBackendConnection() {
+            try {
+                const res = await fetch('/api/health', { method: 'GET' });
+                if (res.ok) {
+                    backendAvailable = true;
+                    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+                    if (token) {
+                        const stateRes = await fetch('/api/state', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (stateRes.ok) {
+                            const data = await stateRes.json();
+                            currentUser = data.user;
+                            localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+                            if (data.state && (Array.isArray(data.state.habits) || Array.isArray(data.state.goodHabits))) {
+                                appState = {
+                                    habits: Array.isArray(data.state.habits) ? data.state.habits : [],
+                                    goodHabits: Array.isArray(data.state.goodHabits) ? data.state.goodHabits : [],
+                                    history: Array.isArray(data.state.history) ? data.state.history : []
+                                };
+                                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                            }
+                            serverLeaderboard = Array.isArray(data.leaderboard) ? data.leaderboard : [];
+                        }
+                    } else {
+                        const lbRes = await fetch('/api/leaderboard');
+                        if (lbRes.ok) {
+                            const lbData = await lbRes.json();
+                            serverLeaderboard = Array.isArray(lbData.leaderboard) ? lbData.leaderboard : [];
+                        }
+                    }
+                }
+            } catch (e) {
+                backendAvailable = false;
+            }
+            updateAuthHeaderUI();
+            renderAll();
+        }
+
+        async function pushStateToServerIfAuthenticated() {
+            if (!backendAvailable || !currentUser) return;
+            const token = localStorage.getItem(AUTH_TOKEN_KEY);
+            if (!token) return;
+            try {
+                const res = await fetch('/api/state', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        state: appState,
+                        summary: getUserSummarySnapshot(),
+                        shareLeaderboard: currentUser.shareLeaderboard !== false
+                    })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data.leaderboard)) {
+                        serverLeaderboard = data.leaderboard;
+                        renderFriendsLeaderboard();
+                    }
+                }
+            } catch (e) {
+                // Игнорируем временную недоступность сети
+            }
+        }
+
+        function addHistoryEntry(type, habitName, text) {
+            appState.history.unshift({
+                id: 'h-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+                timestamp: Date.now(),
+                type,
+                habitName,
+                text
+            });
+            if (appState.history.length > 100) {
+                appState.history = appState.history.slice(0, 100);
+            }
+        }
+
+        // ==========================================
+        // ПОДСЧЁТ СЕРИЙ И ПРОГРЕССА
+        // ==========================================
+        function calculateBadHabitDays(habit) {
+            const elapsed = getElapsedBreakdown(habit.startDate);
+            const checkedCount = Object.keys(habit.checkIns || {}).filter(k => habit.checkIns[k]).length;
+            return Math.max(elapsed.days, checkedCount);
+        }
+
+        function calculateGoodHabitStreak(goodHabit) {
+            const logs = goodHabit.logs || {};
+            const target = Number(goodHabit.targetMinutes || 30);
+            let streak = 0;
+            const today = new Date();
+
+            for (let i = 0; i < 365; i++) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - i);
+                const key = formatDateKey(d);
+                const mins = Number(logs[key]?.minutes || 0);
+                if (mins >= target) {
+                    streak++;
+                } else {
+                    if (i === 0) continue;
+                    break;
+                }
+            }
+            return streak;
+        }
+
+        function calculateGoodHabitTotalMinutes(goodHabit) {
+            const logs = goodHabit.logs || {};
+            return Object.values(logs).reduce((acc, entry) => acc + Number(entry?.minutes || 0), 0);
+        }
+
+        function getActiveSessionElapsedSeconds(habitId = null) {
+            if (!activeSession) return 0;
+            if (habitId && activeSession.habitId !== habitId) return 0;
+            let totalMs = Number(activeSession.accumulatedMs || 0);
+            if (!activeSession.isPaused && activeSession.startedAt) {
+                totalMs += Math.max(0, Date.now() - activeSession.startedAt);
+            }
+            return Math.floor(totalMs / 1000);
+        }
+
+        // ==========================================
+        // РЕНДЕРИНГ ВСЕГО ИНТЕРФЕЙСА
+        // ==========================================
+        function renderAll() {
+            renderSummaryStats();
+            renderTabsVisibility();
+            renderGoodHabits();
+            renderBadHabits();
+            renderMilestonesAndHistory();
+            renderFloatingSessionBar();
+            renderFriendsLeaderboard();
+        }
+
+        function renderSummaryStats() {
+            let totalCleanDays = 0;
+            let bestStreak = 0;
+            let totalMoneySaved = 0;
+            let monthlyMoneyProjection = 0;
+            let savedMinutesFromBad = 0;
+
+            appState.habits.forEach(h => {
+                const elapsed = getElapsedBreakdown(h.startDate);
+                const cleanDays = calculateBadHabitDays(h);
+                totalCleanDays += cleanDays;
+                const rec = Math.max(cleanDays, Number(h.bestStreakDays || 0));
+                if (rec > bestStreak) bestStreak = rec;
+
+                const cost = Number(h.dailyCost || 0);
+                const mins = Number(h.dailyMinutes || 0);
+                totalMoneySaved += Math.round(elapsed.totalDaysFloat * cost);
+                monthlyMoneyProjection += cost * 30;
+                savedMinutesFromBad += elapsed.totalDaysFloat * mins;
+            });
+
+            const todayKey = getTodayKey();
+            let goodTodayMinutes = 0;
+            let goodGoalsCompletedToday = 0;
+            let totalGoodMinutesAllTime = 0;
+
+            appState.goodHabits.forEach(g => {
+                const todayMins = Number(g.logs?.[todayKey]?.minutes || 0);
+                const liveBonusMins = Math.floor(getActiveSessionElapsedSeconds(g.id) / 60);
+                const effectiveToday = todayMins + liveBonusMins;
+                goodTodayMinutes += effectiveToday;
+                if (effectiveToday >= Number(g.targetMinutes || 30)) {
+                    goodGoalsCompletedToday++;
+                }
+                totalGoodMinutesAllTime += calculateGoodHabitTotalMinutes(g) + liveBonusMins;
+            });
+
+            document.getElementById('statTotalCleanDays').textContent = String(totalCleanDays);
+            document.getElementById('statBestStreak').innerHTML = `<i class="ph-fill ph-fire"></i> <span>Рекорд: ${bestStreak} дн.</span>`;
+            document.getElementById('statMoneySaved').textContent = `${totalMoneySaved.toLocaleString('ru-RU')} ₽`;
+            document.getElementById('statMoneyPerMonth').innerHTML = `<i class="ph-fill ph-trend-up"></i> <span>~${monthlyMoneyProjection.toLocaleString('ru-RU')} ₽ / мес</span>`;
+
+            document.getElementById('statGoodTodayMinutes').textContent = `${goodTodayMinutes} мин`;
+            document.getElementById('statGoodTodayGoals').innerHTML = `<i class="ph-fill ph-target"></i> <span>Выполнено: ${goodGoalsCompletedToday} из ${appState.goodHabits.length}</span>`;
+
+            const goodHours = (totalGoodMinutesAllTime / 60).toFixed(1).replace('.0', '');
+            const badSavedHours = Math.round(savedMinutesFromBad / 60);
+            document.getElementById('statTotalGoodHours').textContent = `${goodHours} ч`;
+            document.getElementById('statTimeSaved').innerHTML = `<i class="ph-fill ph-hourglass-high"></i> <span>+${badSavedHours} ч спасено от привычек</span>`;
+
+            document.getElementById('badgeCountBad').textContent = String(appState.habits.length);
+            document.getElementById('badgeCountGood').textContent = String(appState.goodHabits.length);
+            document.getElementById('badgeCountAll').textContent = String(appState.habits.length + appState.goodHabits.length);
+        }
+
+        function renderTabsVisibility() {
+            const tabHabits = document.getElementById('tabContentHabits');
+            const tabAchievements = document.getElementById('tabContentAchievements');
+            const tabFriends = document.getElementById('tabContentFriends');
+            const goodSection = document.getElementById('goodHabitsSection');
+            const badSection = document.getElementById('badHabitsSection');
+            const emptyState = document.getElementById('emptyState');
+
+            const buttons = {
+                all: document.getElementById('tabBtnAll'),
+                bad: document.getElementById('tabBtnBad'),
+                good: document.getElementById('tabBtnGood'),
+                friends: document.getElementById('tabBtnFriends'),
+                achievements: document.getElementById('tabBtnAchievements')
+            };
+
+            Object.entries(buttons).forEach(([key, btn]) => {
+                if (!btn) return;
+                if (key === currentTab) {
+                    btn.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 text-white border border-slate-700 transition-all flex items-center gap-2';
+                } else {
+                    btn.className = 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all flex items-center gap-2';
+                }
+            });
+
+            if (currentTab === 'achievements') {
+                tabHabits.classList.add('hidden');
+                tabFriends.classList.add('hidden');
+                tabAchievements.classList.remove('hidden');
+                return;
+            }
+
+            if (currentTab === 'friends') {
+                tabHabits.classList.add('hidden');
+                tabAchievements.classList.add('hidden');
+                tabFriends.classList.remove('hidden');
+                return;
+            }
+
+            tabAchievements.classList.add('hidden');
+            tabFriends.classList.add('hidden');
+            tabHabits.classList.remove('hidden');
+
+            const totalItems = appState.habits.length + appState.goodHabits.length;
+            if (totalItems === 0) {
+                emptyState.classList.remove('hidden');
+                goodSection.classList.add('hidden');
+                badSection.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            if (currentTab === 'all') {
+                goodSection.classList.toggle('hidden', appState.goodHabits.length === 0);
+                badSection.classList.toggle('hidden', appState.habits.length === 0);
+            } else if (currentTab === 'good') {
+                goodSection.classList.remove('hidden');
+                badSection.classList.add('hidden');
+            } else if (currentTab === 'bad') {
+                goodSection.classList.add('hidden');
+                badSection.classList.remove('hidden');
+            }
+        }
+
+        function renderGoodHabits() {
+            const grid = document.getElementById('goodHabitsGrid');
+            if (!grid) return;
+
+            if (appState.goodHabits.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full glass-card rounded-2xl p-6 text-center border border-dashed border-slate-700">
+                        <p class="text-sm text-slate-400 mb-3">У вас пока нет полезных привычек на каждый день (например, чтение книги или спорт).</p>
+                        <button onclick="openGoodHabitModal()" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold text-xs">+ Добавить полезную привычку</button>
+                    </div>`;
+                return;
+            }
+
+            const todayKey = getTodayKey();
+            const last14 = getLastNDays(14);
+
+            grid.innerHTML = appState.goodHabits.map(habit => {
+                const style = COLOR_STYLES[habit.color] || COLOR_STYLES.sky;
+                const target = Number(habit.targetMinutes || 30);
+                const savedTodayMins = Number(habit.logs?.[todayKey]?.minutes || 0);
+                const isSessionForThis = activeSession && activeSession.habitId === habit.id;
+                const sessionSec = isSessionForThis ? getActiveSessionElapsedSeconds(habit.id) : 0;
+                const effectiveTodayMins = savedTodayMins + Math.floor(sessionSec / 60);
+
+                const pct = Math.min(100, Math.round((effectiveTodayMins / target) * 100));
+                const isGoalDone = effectiveTodayMins >= target;
+                const streak = calculateGoodHabitStreak(habit);
+                const totalMins = calculateGoodHabitTotalMinutes(habit) + Math.floor(sessionSec / 60);
+                const totalHours = (totalMins / 60).toFixed(1).replace('.0', '');
+                const todayNote = habit.logs?.[todayKey]?.note || '';
+
+                const daysHtml = last14.map(d => {
+                    const entry = habit.logs?.[d.key];
+                    const mins = Number(entry?.minutes || 0);
+                    const done = mins >= target;
+                    const partial = mins > 0 && mins < target;
+
+                    let btnClass = 'bg-slate-900/90 text-slate-400 border-slate-800 hover:border-slate-600';
+                    if (done) {
+                        btnClass = style.dayChecked;
+                    } else if (partial) {
+                        btnClass = 'bg-sky-500/20 text-sky-300 border-sky-500/40 font-semibold';
+                    }
+
+                    return `
+                        <button type="button" onclick="openLogTimeModal('${habit.id}', '${d.key}')"
+                            title="${d.key}: ${mins} мин. ${entry?.note ? '— ' + escapeHtml(entry.note) : '(нажмите, чтобы изменить)'}"
+                            class="flex flex-col items-center justify-center py-1.5 rounded-xl border text-[11px] transition-all ${btnClass} ${d.isToday ? 'ring-1 ring-white/40' : ''}">
+                            <span class="text-[9px] opacity-75">${d.weekday}</span>
+                            <span class="leading-tight">${d.dayNum}</span>
+                            <span class="text-[9px] mt-0.5">${mins > 0 ? mins + 'м' : '·'}</span>
+                        </button>
+                    `;
+                }).join('');
+
+                return `
+                    <article class="glass-card habit-card-glow rounded-3xl p-5 sm:p-6 flex flex-col justify-between space-y-5 relative overflow-hidden">
+                        <div>
+                            <!-- Top Row -->
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex items-center gap-3.5">
+                                    <div class="w-12 h-12 rounded-2xl ${style.badgeBg} border ${style.badgeBorder} flex items-center justify-center text-2xl shrink-0">
+                                        ${habit.icon || '📚'}
+                                    </div>
+                                    <div>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${style.badgeBg} ${style.badgeText} border ${style.badgeBorder}">
+                                                Норма: ${target} мин / день
+                                            </span>
+                                            ${isGoalDone ? `<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">✓ Норма выполнена</span>` : ''}
+                                        </div>
+                                        <h3 class="text-lg font-bold text-white mt-1">${escapeHtml(habit.name)}</h3>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-1">
+                                    <button onclick="openGoodHabitModal('${habit.id}')" class="p-2 rounded-xl bg-slate-800/70 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" title="Настроить привычку">
+                                        <i class="ph-bold ph-pencil-simple text-sm"></i>
+                                    </button>
+                                    <button onclick="openDeleteModal('${habit.id}', 'good')" class="p-2 rounded-xl bg-slate-800/70 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors" title="Удалить">
+                                        <i class="ph-bold ph-trash text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            ${habit.motivation ? `
+                                <p class="mt-3 text-xs text-slate-300 bg-slate-900/60 border border-slate-800/80 rounded-xl px-3.5 py-2 flex items-center gap-2">
+                                    <i class="ph-fill ph-quotes text-sky-400 shrink-0"></i>
+                                    <span class="truncate">${escapeHtml(habit.motivation)}</span>
+                                </p>
+                            ` : ''}
+
+                            <!-- Progress Today -->
+                            <div class="mt-4 bg-slate-900/85 border border-slate-800 rounded-2xl p-4">
+                                <div class="flex items-baseline justify-between mb-2">
+                                    <div>
+                                        <span class="text-xs text-slate-400">Потрачено сегодня:</span>
+                                        <span class="text-xl font-extrabold text-white ml-1.5">${effectiveTodayMins} мин</span>
+                                        <span class="text-xs text-slate-400">из ${target} мин</span>
+                                    </div>
+                                    <span class="text-xs font-bold ${isGoalDone ? 'text-emerald-400' : style.badgeText}">${pct}%</span>
+                                </div>
+                                <div class="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                                    <div class="h-full ${style.barBg} transition-all duration-300" style="width: ${pct}%"></div>
+                                </div>
+                                ${todayNote ? `<p class="text-[11px] text-sky-300 mt-2"><i class="ph-fill ph-note-pencil mr-1"></i>Заметка за сегодня: ${escapeHtml(todayNote)}</p>` : ''}
+                            </div>
+
+                            <!-- Live Timer Control inside Card -->
+                            <div class="mt-3">
+                                ${isSessionForThis ? `
+                                    <div class="rounded-2xl bg-sky-500/15 border border-sky-500/40 p-3 flex flex-wrap items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-2.5 h-2.5 rounded-full ${activeSession.isPaused ? 'bg-amber-400' : 'bg-emerald-400 animate-ping'}"></span>
+                                            <span class="text-xs font-bold text-white">${activeSession.isPaused ? 'На паузе:' : 'Таймер идёт:'}</span>
+                                            <span data-live-good-clock="${habit.id}" class="font-mono text-base font-extrabold text-sky-300">${formatClockHMS(sessionSec)}</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" onclick="toggleActiveSessionPause()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold">
+                                                ${activeSession.isPaused ? '▶️ Продолжить' : '⏸ Пауза'}
+                                            </button>
+                                            <button type="button" onclick="openFinishSessionModal()" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold">
+                                                ✓ Завершить и записать
+                                            </button>
+                                        </div>
+                                    </div>
+                                ` : `
+                                    <button type="button" onclick="startGoodHabitSession('${habit.id}')" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-sky-500/20 to-emerald-500/20 hover:from-sky-500/30 hover:to-emerald-500/30 border border-sky-500/30 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95">
+                                        <i class="ph-fill ph-play-circle text-lg text-sky-400"></i>
+                                        <span>Начать сессию по таймеру (засечь время)</span>
+                                    </button>
+                                `}
+                            </div>
+
+                            <!-- Quick Add Time Buttons -->
+                            <div class="mt-3 flex flex-wrap items-center gap-1.5">
+                                <button type="button" onclick="quickAddGoodMinutes('${habit.id}', 10)" class="flex-1 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-sky-300 font-semibold text-xs border border-slate-700/80 transition-all active:scale-95">+10 мин</button>
+                                <button type="button" onclick="quickAddGoodMinutes('${habit.id}', 15)" class="flex-1 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-sky-300 font-semibold text-xs border border-slate-700/80 transition-all active:scale-95">+15 мин</button>
+                                <button type="button" onclick="quickAddGoodMinutes('${habit.id}', 30)" class="flex-1 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-sky-300 font-semibold text-xs border border-slate-700/80 transition-all active:scale-95">+30 мин</button>
+                                <button type="button" onclick="openLogTimeModal('${habit.id}', '${todayKey}')" class="px-3 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700/80 transition-all flex items-center gap-1" title="Ввести точное время и заметку">
+                                    <i class="ph-bold ph-note-pencil"></i>
+                                    <span>Точно</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 14-day calendar & bottom stats -->
+                        <div class="space-y-3 pt-2 border-t border-slate-800/80">
+                            <div class="flex items-center justify-between text-xs text-slate-400">
+                                <span>Последние 14 дней (нажмите на день для ввода минут):</span>
+                                <span class="font-semibold text-white">🔥 Серия: ${streak} дн. • Всего: ${totalHours} ч</span>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1.5">
+                                ${daysHtml}
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function renderBadHabits() {
+            const grid = document.getElementById('habitsGrid');
+            if (!grid) return;
+
+            if (appState.habits.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full glass-card rounded-2xl p-6 text-center border border-dashed border-slate-700">
+                        <p class="text-sm text-slate-400 mb-3">Список целей отказа пуст. Добавьте вредную привычку, чтобы включить таймер свободы.</p>
+                        <button onclick="openHabitModal()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs">+ Добавить цель отказа</button>
+                    </div>`;
+                return;
+            }
+
+            const todayKey = getTodayKey();
+            const last14 = getLastNDays(14);
+
+            grid.innerHTML = appState.habits.map(habit => {
+                const style = COLOR_STYLES[habit.color] || COLOR_STYLES.emerald;
+                const elapsed = getElapsedBreakdown(habit.startDate);
+                const cleanDays = calculateBadHabitDays(habit);
+                const nextMilestone = MILESTONES.find(m => m.days > cleanDays) || MILESTONES[MILESTONES.length - 1];
+                const milestonePct = Math.min(100, Math.round((elapsed.totalDaysFloat / nextMilestone.days) * 100));
+
+                const savedMoney = Math.round(elapsed.totalDaysFloat * Number(habit.dailyCost || 0));
+                const savedHours = (elapsed.totalDaysFloat * Number(habit.dailyMinutes || 0) / 60).toFixed(1).replace('.0', '');
+                const isTodayChecked = !!(habit.checkIns && habit.checkIns[todayKey]);
+
+                const daysHtml = last14.map(d => {
+                    const checked = !!(habit.checkIns && habit.checkIns[d.key]);
+                    const btnClass = checked
+                        ? style.dayChecked
+                        : 'bg-slate-900/90 text-slate-400 border-slate-800 hover:border-slate-600';
+                    return `
+                        <button type="button" onclick="toggleHabitDate('${habit.id}', '${d.key}')"
+                            title="${d.key}: ${checked ? 'День без срыва ✓' : 'Нажмите, чтобы отметить день'}"
+                            class="flex flex-col items-center justify-center py-1.5 rounded-xl border text-[11px] transition-all ${btnClass} ${d.isToday ? 'ring-1 ring-white/40' : ''}">
+                            <span class="text-[9px] opacity-75">${d.weekday}</span>
+                            <span class="leading-tight">${d.dayNum}</span>
+                            <span class="text-[9px] mt-0.5">${checked ? '✓' : '·'}</span>
+                        </button>
+                    `;
+                }).join('');
+
+                return `
+                    <article class="glass-card habit-card-glow rounded-3xl p-5 sm:p-6 flex flex-col justify-between space-y-5 relative overflow-hidden">
+                        <div>
+                            <!-- Card Header -->
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex items-center gap-3.5">
+                                    <div class="w-12 h-12 rounded-2xl ${style.badgeBg} border ${style.badgeBorder} flex items-center justify-center text-2xl shrink-0">
+                                        ${habit.icon || '🚭'}
+                                    </div>
+                                    <div>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${style.badgeBg} ${style.badgeText} border ${style.badgeBorder}">
+                                                Цель: ${nextMilestone.days} дн. (${nextMilestone.icon} ${nextMilestone.title})
+                                            </span>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-white mt-1">${escapeHtml(habit.name)}</h3>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-1">
+                                    <button onclick="openHabitModal('${habit.id}')" class="p-2 rounded-xl bg-slate-800/70 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" title="Редактировать">
+                                        <i class="ph-bold ph-pencil-simple text-sm"></i>
+                                    </button>
+                                    <button onclick="openDeleteModal('${habit.id}', 'bad')" class="p-2 rounded-xl bg-slate-800/70 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors" title="Удалить">
+                                        <i class="ph-bold ph-trash text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            ${habit.motivation ? `
+                                <p class="mt-3 text-xs text-slate-300 bg-slate-900/60 border border-slate-800/80 rounded-xl px-3.5 py-2 flex items-center gap-2">
+                                    <i class="ph-fill ph-quotes text-emerald-400 shrink-0"></i>
+                                    <span class="truncate">${escapeHtml(habit.motivation)}</span>
+                                </p>
+                            ` : ''}
+
+                            <!-- Live Abstinence Timer -->
+                            <div class="mt-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-4" data-bad-timer-card="${habit.id}">
+                                <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                                    <span>Свобода от привычки (живой отсчёт):</span>
+                                    <span class="font-semibold ${style.badgeText}" data-timer-pct="${habit.id}">${milestonePct}% до рубежа</span>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2 text-center">
+                                    <div class="bg-slate-950/90 rounded-xl py-2 px-1 border border-slate-800/80">
+                                        <div class="text-xl sm:text-2xl font-extrabold text-white font-mono" data-timer-days="${habit.id}">${elapsed.days}</div>
+                                        <div class="text-[10px] text-slate-400 uppercase">дней</div>
+                                    </div>
+                                    <div class="bg-slate-950/90 rounded-xl py-2 px-1 border border-slate-800/80">
+                                        <div class="text-xl sm:text-2xl font-extrabold text-white font-mono" data-timer-hours="${habit.id}">${String(elapsed.hours).padStart(2, '0')}</div>
+                                        <div class="text-[10px] text-slate-400 uppercase">часов</div>
+                                    </div>
+                                    <div class="bg-slate-950/90 rounded-xl py-2 px-1 border border-slate-800/80">
+                                        <div class="text-xl sm:text-2xl font-extrabold text-white font-mono" data-timer-mins="${habit.id}">${String(elapsed.minutes).padStart(2, '0')}</div>
+                                        <div class="text-[10px] text-slate-400 uppercase">минут</div>
+                                    </div>
+                                    <div class="bg-slate-950/90 rounded-xl py-2 px-1 border border-slate-800/80">
+                                        <div class="text-xl sm:text-2xl font-extrabold ${style.badgeText} font-mono" data-timer-secs="${habit.id}">${String(elapsed.seconds).padStart(2, '0')}</div>
+                                        <div class="text-[10px] text-slate-400 uppercase">секунд</div>
+                                    </div>
+                                </div>
+                                <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden mt-3 border border-slate-800">
+                                    <div class="h-full ${style.barBg} transition-all duration-500" data-timer-bar="${habit.id}" style="width: ${milestonePct}%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Saved Money & Time Row -->
+                            <div class="mt-3 grid grid-cols-2 gap-2.5">
+                                <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                                    <span class="text-xs text-slate-400">Сэкономлено:</span>
+                                    <span class="text-sm font-bold text-amber-400">${savedMoney.toLocaleString('ru-RU')} ₽</span>
+                                </div>
+                                <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+                                    <span class="text-xs text-slate-400">Спасено времени:</span>
+                                    <span class="text-sm font-bold text-purple-400">${savedHours} ч</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons: Check-in Today & Relapse -->
+                            <div class="mt-3 flex items-center gap-2">
+                                <button type="button" onclick="toggleHabitDate('${habit.id}', '${todayKey}')"
+                                    class="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all active:scale-95 flex items-center justify-center gap-2 ${isTodayChecked ? 'bg-slate-800 text-emerald-400 border border-emerald-500/40' : style.btnBg}">
+                                    <i class="ph-bold ${isTodayChecked ? 'ph-check-circle' : 'ph-calendar-check'} text-base"></i>
+                                    <span>${isTodayChecked ? 'Сегодня отмечено без срыва ✓' : 'Отметить сегодня без срыва'}</span>
+                                </button>
+                                <button type="button" onclick="openRelapseModal('${habit.id}')"
+                                    class="px-3.5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 border border-slate-700/80 text-xs font-semibold transition-colors"
+                                    title="Сбросить таймер при срыве">
+                                    Срыв
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 14-day interactive check-in calendar -->
+                        <div class="space-y-2.5 pt-3 border-t border-slate-800/80">
+                            <div class="flex items-center justify-between text-xs text-slate-400">
+                                <span>Календарь чистоты (14 дней):</span>
+                                <span class="text-slate-300 font-medium">Рекорд: ${Math.max(cleanDays, Number(habit.bestStreakDays || 0))} дн.</span>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1.5">
+                                ${daysHtml}
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function renderMilestonesAndHistory() {
+            const showcase = document.getElementById('milestonesShowcase');
+            if (showcase) {
+                let maxCleanDays = 0;
+                appState.habits.forEach(h => {
+                    const d = calculateBadHabitDays(h);
+                    const rec = Math.max(d, Number(h.bestStreakDays || 0));
+                    if (rec > maxCleanDays) maxCleanDays = rec;
+                });
+
+                showcase.innerHTML = MILESTONES.map(m => {
+                    const unlocked = maxCleanDays >= m.days;
+                    return `
+                        <div class="rounded-2xl p-4 border text-center transition-all ${unlocked ? 'bg-amber-500/10 border-amber-500/40 shadow-lg shadow-amber-500/5' : 'bg-slate-900/50 border-slate-800 opacity-50'}">
+                            <div class="text-3xl mb-2">${m.icon}</div>
+                            <div class="text-xs font-bold text-white">${m.title}</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">${m.desc}</div>
+                            <div class="mt-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${unlocked ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-500'}">
+                                ${unlocked ? 'Открыто ✓' : m.days + ' дн.'}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const logList = document.getElementById('historyLogList');
+            if (logList) {
+                if (!appState.history || appState.history.length === 0) {
+                    logList.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Журнал событий пока пуст.</p>`;
+                    return;
+                }
+                logList.innerHTML = appState.history.map(item => {
+                    const d = new Date(item.timestamp);
+                    const dateStr = d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                    return `
+                        <div class="flex items-start justify-between gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
+                            <div>
+                                <span class="font-bold text-white">${escapeHtml(item.habitName)}</span>
+                                <p class="text-slate-300 mt-0.5">${escapeHtml(item.text)}</p>
+                            </div>
+                            <span class="text-[11px] text-slate-500 shrink-0 font-mono">${dateStr}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // ==========================================
+        // ЖИВОЙ ТАЙМЕР И СЕКУНДОМЕР СЕССИЙ
+        // ==========================================
+        function updateLiveTimers() {
+            appState.habits.forEach(habit => {
+                const elapsed = getElapsedBreakdown(habit.startDate);
+                const cleanDays = calculateBadHabitDays(habit);
+                const nextMilestone = MILESTONES.find(m => m.days > cleanDays) || MILESTONES[MILESTONES.length - 1];
+                const milestonePct = Math.min(100, Math.round((elapsed.totalDaysFloat / nextMilestone.days) * 100));
+
+                const dEl = document.querySelector(`[data-timer-days="${habit.id}"]`);
+                const hEl = document.querySelector(`[data-timer-hours="${habit.id}"]`);
+                const mEl = document.querySelector(`[data-timer-mins="${habit.id}"]`);
+                const sEl = document.querySelector(`[data-timer-secs="${habit.id}"]`);
+                const pctEl = document.querySelector(`[data-timer-pct="${habit.id}"]`);
+                const barEl = document.querySelector(`[data-timer-bar="${habit.id}"]`);
+
+                if (dEl) dEl.textContent = String(elapsed.days);
+                if (hEl) hEl.textContent = String(elapsed.hours).padStart(2, '0');
+                if (mEl) mEl.textContent = String(elapsed.minutes).padStart(2, '0');
+                if (sEl) sEl.textContent = String(elapsed.seconds).padStart(2, '0');
+                if (pctEl) pctEl.textContent = `${milestonePct}% до рубежа`;
+                if (barEl) barEl.style.width = `${milestonePct}%`;
+            });
+
+            if (activeSession) {
+                const sec = getActiveSessionElapsedSeconds();
+                const clockStr = formatClockHMS(sec);
+                const floatClock = document.getElementById('floatingSessionClock');
+                if (floatClock) floatClock.textContent = clockStr;
+
+                const cardClock = document.querySelector(`[data-live-good-clock="${activeSession.habitId}"]`);
+                if (cardClock) cardClock.textContent = clockStr;
+
+                const habit = appState.goodHabits.find(g => g.id === activeSession.habitId);
+                if (habit && !activeSession.isPaused) {
+                    document.title = `⏱️ ${clockStr} — ${habit.name}`;
+                } else {
+                    document.title = DEFAULT_DOC_TITLE;
+                }
+            } else {
+                if (document.title !== DEFAULT_DOC_TITLE) {
+                    document.title = DEFAULT_DOC_TITLE;
+                }
+            }
+        }
+
+        function renderFloatingSessionBar() {
+            const bar = document.getElementById('floatingSessionBar');
+            if (!bar) return;
+
+            if (!activeSession) {
+                bar.classList.add('hidden');
+                return;
+            }
+
+            const habit = appState.goodHabits.find(g => g.id === activeSession.habitId);
+            if (!habit) {
+                activeSession = null;
+                saveActiveSessionState();
+                bar.classList.add('hidden');
+                return;
+            }
+
+            bar.classList.remove('hidden');
+            document.getElementById('floatingSessionIcon').textContent = habit.icon || '📚';
+            document.getElementById('floatingSessionTitle').textContent = habit.name;
+            document.getElementById('floatingSessionGoalHint').textContent = `Цель: ${habit.targetMinutes || 30} мин/день`;
+            document.getElementById('floatingSessionClock').textContent = formatClockHMS(getActiveSessionElapsedSeconds());
+
+            const badge = document.getElementById('floatingSessionStatusBadge');
+            const pulse = document.getElementById('floatingSessionPulse');
+            const pauseBtn = document.getElementById('floatingPauseBtn');
+
+            if (activeSession.isPaused) {
+                badge.textContent = 'На паузе';
+                badge.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30';
+                pulse.className = 'absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400';
+                pauseBtn.innerHTML = `<i class="ph-fill ph-play text-sm"></i><span class="hidden sm:inline">Продолжить</span>`;
+            } else {
+                badge.textContent = 'Идёт сессия';
+                badge.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                pulse.className = 'absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping';
+                pauseBtn.innerHTML = `<i class="ph-fill ph-pause text-sm"></i><span class="hidden sm:inline">Пауза</span>`;
+            }
+        }
+
+        function startGoodHabitSession(habitId) {
+            const habit = appState.goodHabits.find(g => g.id === habitId);
+            if (!habit) return;
+
+            activeSession = {
+                habitId: habit.id,
+                startedAt: Date.now(),
+                accumulatedMs: 0,
+                isPaused: false
+            };
+            saveActiveSessionState();
+            renderAll();
+            showToast(`⏱️ Запущен таймер: «${habit.name}»`, 'info');
+        }
+
+        function toggleActiveSessionPause() {
+            if (!activeSession) return;
+            if (activeSession.isPaused) {
+                activeSession.startedAt = Date.now();
+                activeSession.isPaused = false;
+            } else {
+                activeSession.accumulatedMs = Number(activeSession.accumulatedMs || 0) + Math.max(0, Date.now() - activeSession.startedAt);
+                activeSession.startedAt = null;
+                activeSession.isPaused = true;
+            }
+            saveActiveSessionState();
+            renderAll();
+        }
+
+        function openFinishSessionModal() {
+            if (!activeSession) return;
+            if (!activeSession.isPaused) {
+                toggleActiveSessionPause();
+            }
+            const habit = appState.goodHabits.find(g => g.id === activeSession.habitId);
+            if (!habit) return;
+
+            const elapsedSec = getActiveSessionElapsedSeconds();
+            const suggestedMins = Math.max(1, Math.round(elapsedSec / 60));
+
+            document.getElementById('finishModalIcon').textContent = habit.icon || '📚';
+            document.getElementById('finishModalTitle').textContent = habit.name;
+            document.getElementById('finishModalElapsedText').textContent = formatClockHMS(elapsedSec);
+            document.getElementById('finishModalMinutesInput').value = suggestedMins;
+            document.getElementById('finishModalNoteInput').value = '';
+
+            const modal = document.getElementById('finishSessionModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeFinishSessionModal() {
+            const modal = document.getElementById('finishSessionModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function confirmFinishSession(e) {
+            e.preventDefault();
+            if (!activeSession) return;
+
+            const habit = appState.goodHabits.find(g => g.id === activeSession.habitId);
+            const minsToAdd = Math.max(1, Number(document.getElementById('finishModalMinutesInput').value || 1));
+            const note = document.getElementById('finishModalNoteInput').value.trim();
+
+            if (habit) {
+                const todayKey = getTodayKey();
+                if (!habit.logs) habit.logs = {};
+                const prevMins = Number(habit.logs[todayKey]?.minutes || 0);
+                const prevNote = habit.logs[todayKey]?.note || '';
+                const newTotal = prevMins + minsToAdd;
+
+                habit.logs[todayKey] = {
+                    minutes: newTotal,
+                    note: note || prevNote
+                };
+
+                addHistoryEntry('good_session', `${habit.icon || '📚'} ${habit.name}`, `Сессия по таймеру: +${minsToAdd} мин.${note ? ' (' + note + ')' : ''}`);
+
+                if (prevMins < habit.targetMinutes && newTotal >= habit.targetMinutes) {
+                    triggerCelebrationConfetti();
+                }
+            }
+
+            activeSession = null;
+            saveActiveSessionState();
+            saveState();
+            closeFinishSessionModal();
+            renderAll();
+            showToast(`✅ Добавлено +${minsToAdd} мин. в дневной прогресс!`, 'success');
+        }
+
+        function cancelActiveSession() {
+            activeSession = null;
+            saveActiveSessionState();
+            renderAll();
+            showToast('Сессия по таймеру отменена', 'info');
+        }
+
+        // ==========================================
+        // УПРАВЛЕНИЕ ПРИВЫЧКАМИ И КАЛЕНДАРЁМ
+        // ==========================================
+        function switchTab(tab) {
+            currentTab = tab;
+            renderAll();
+        }
+
+        function toggleHabitDate(habitId, dateKey) {
+            const habit = appState.habits.find(h => h.id === habitId);
+            if (!habit) return;
+            if (!habit.checkIns) habit.checkIns = {};
+
+            if (habit.checkIns[dateKey]) {
+                delete habit.checkIns[dateKey];
+                showToast(`Отметка за ${dateKey} снята`, 'info');
+            } else {
+                habit.checkIns[dateKey] = true;
+                const cleanDays = calculateBadHabitDays(habit);
+                if (cleanDays > Number(habit.bestStreakDays || 0)) {
+                    habit.bestStreakDays = cleanDays;
+                }
+                addHistoryEntry('checkin', `${habit.icon} ${habit.name}`, `День ${dateKey} отмечен без срыва`);
+                triggerCelebrationConfetti();
+                showToast(`🎉 День отмечен без срыва!`, 'success');
+            }
+
+            saveState();
+            renderAll();
+        }
+
+        function quickAddGoodMinutes(habitId, deltaMinutes) {
+            const habit = appState.goodHabits.find(g => g.id === habitId);
+            if (!habit) return;
+            const todayKey = getTodayKey();
+            if (!habit.logs) habit.logs = {};
+
+            const prev = Number(habit.logs[todayKey]?.minutes || 0);
+            const next = prev + Number(deltaMinutes);
+            habit.logs[todayKey] = {
+                minutes: next,
+                note: habit.logs[todayKey]?.note || ''
+            };
+
+            addHistoryEntry('good_log', `${habit.icon} ${habit.name}`, `Добавлено +${deltaMinutes} мин. (всего за день: ${next} мин.)`);
+
+            if (prev < habit.targetMinutes && next >= habit.targetMinutes) {
+                triggerCelebrationConfetti();
+                showToast(`🎯 Дневная норма по «${habit.name}» выполнена!`, 'success');
+            } else {
+                showToast(`+${deltaMinutes} мин. добавлено к «${habit.name}»`, 'success');
+            }
+
+            saveState();
+            renderAll();
+        }
+
+        // Модалка точного ввода времени полезной привычки
+        function openLogTimeModal(habitId, dateKey) {
+            const habit = appState.goodHabits.find(g => g.id === habitId);
+            if (!habit) return;
+
+            document.getElementById('logTimeHabitId').value = habit.id;
+            document.getElementById('logTimeDateKey').value = dateKey;
+            document.getElementById('logTimeModalIcon').textContent = habit.icon || '📚';
+            document.getElementById('logTimeModalTitle').textContent = habit.name;
+            document.getElementById('logTimeModalDateLabel').textContent = dateKey === getTodayKey() ? `Сегодня (${dateKey})` : `Дата: ${dateKey}`;
+
+            const existing = habit.logs?.[dateKey] || { minutes: 0, note: '' };
+            document.getElementById('logTimeMinutesInput').value = existing.minutes || 0;
+            document.getElementById('logTimeNoteInput').value = existing.note || '';
+
+            const modal = document.getElementById('logTimeModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeLogTimeModal() {
+            const modal = document.getElementById('logTimeModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function adjustModalMinutes(delta) {
+            const input = document.getElementById('logTimeMinutesInput');
+            input.value = Math.max(0, Number(input.value || 0) + Number(delta));
+        }
+
+        function saveLoggedTimeForm(e) {
+            e.preventDefault();
+            const habitId = document.getElementById('logTimeHabitId').value;
+            const dateKey = document.getElementById('logTimeDateKey').value;
+            const minutes = Math.max(0, Number(document.getElementById('logTimeMinutesInput').value || 0));
+            const note = document.getElementById('logTimeNoteInput').value.trim();
+
+            const habit = appState.goodHabits.find(g => g.id === habitId);
+            if (!habit) return;
+            if (!habit.logs) habit.logs = {};
+
+            const prev = Number(habit.logs[dateKey]?.minutes || 0);
+            if (minutes === 0 && !note) {
+                delete habit.logs[dateKey];
+            } else {
+                habit.logs[dateKey] = { minutes, note };
+            }
+
+            addHistoryEntry('good_log', `${habit.icon} ${habit.name}`, `${dateKey}: ${minutes} мин.${note ? ' — ' + note : ''}`);
+            if (prev < habit.targetMinutes && minutes >= habit.targetMinutes) {
+                triggerCelebrationConfetti();
+            }
+
+            saveState();
+            closeLogTimeModal();
+            renderAll();
+            showToast('Время сохранено!', 'success');
+        }
+
+        // Модалка вредной привычки
+        function openHabitModal(habitId = null) {
+            const modal = document.getElementById('habitModal');
+            const title = document.getElementById('modalTitle');
+
+            if (habitId) {
+                const h = appState.habits.find(x => x.id === habitId);
+                if (!h) return;
+                title.textContent = 'Редактировать цель отказа';
+                document.getElementById('habitId').value = h.id;
+                document.getElementById('habitIcon').value = h.icon || '🚭';
+                document.getElementById('habitName').value = h.name;
+                document.getElementById('habitStartDate').value = toLocalDatetimeInputValue(h.startDate);
+                document.getElementById('habitDailyCost').value = h.dailyCost || 0;
+                document.getElementById('habitDailyMinutes').value = h.dailyMinutes || 0;
+                document.getElementById('habitMotivation').value = h.motivation || '';
+                selectColor(h.color || 'emerald');
+            } else {
+                title.textContent = 'Новая цель отказа';
+                document.getElementById('habitId').value = '';
+                document.getElementById('habitIcon').value = '🚭';
+                document.getElementById('habitName').value = '';
+                document.getElementById('habitStartDate').value = toLocalDatetimeInputValue(Date.now());
+                document.getElementById('habitDailyCost').value = 200;
+                document.getElementById('habitDailyMinutes').value = 30;
+                document.getElementById('habitMotivation').value = '';
+                selectColor('emerald');
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeHabitModal() {
+            const modal = document.getElementById('habitModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function fillPreset(name, icon, color, cost, minutes, motivation) {
+            document.getElementById('habitName').value = name;
+            document.getElementById('habitIcon').value = icon;
+            document.getElementById('habitDailyCost').value = cost;
+            document.getElementById('habitDailyMinutes').value = minutes;
+            document.getElementById('habitMotivation').value = motivation;
+            selectColor(color);
+        }
+
+        function selectColor(color) {
+            document.getElementById('habitColor').value = color;
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                if (btn.dataset.color === color) {
+                    btn.className = `color-btn w-8 h-8 rounded-full bg-${color}-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-white`;
+                } else {
+                    btn.className = `color-btn w-8 h-8 rounded-full bg-${btn.dataset.color}-500 opacity-60 hover:opacity-100`;
+                }
+            });
+        }
+
+        function saveHabitForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('habitId').value;
+            const icon = document.getElementById('habitIcon').value;
+            const name = document.getElementById('habitName').value.trim();
+            const startVal = document.getElementById('habitStartDate').value;
+            const startDate = startVal ? new Date(startVal).getTime() : Date.now();
+            const dailyCost = Number(document.getElementById('habitDailyCost').value || 0);
+            const dailyMinutes = Number(document.getElementById('habitDailyMinutes').value || 0);
+            const motivation = document.getElementById('habitMotivation').value.trim();
+            const color = document.getElementById('habitColor').value || 'emerald';
+
+            if (id) {
+                const existing = appState.habits.find(h => h.id === id);
+                if (existing) {
+                    existing.icon = icon;
+                    existing.name = name;
+                    existing.startDate = startDate;
+                    existing.dailyCost = dailyCost;
+                    existing.dailyMinutes = dailyMinutes;
+                    existing.motivation = motivation;
+                    existing.color = color;
+                }
+            } else {
+                const newHabit = {
+                    id: 'bad-' + Date.now(),
+                    name,
+                    icon,
+                    startDate,
+                    dailyCost,
+                    dailyMinutes,
+                    motivation,
+                    color,
+                    checkIns: { [getTodayKey()]: true },
+                    bestStreakDays: 1,
+                    relapseCount: 0
+                };
+                appState.habits.unshift(newHabit);
+                addHistoryEntry('start', `${icon} ${name}`, 'Поставлена новая цель отказа');
+            }
+
+            saveState();
+            closeHabitModal();
+            renderAll();
+            showToast('Цель отказа сохранена!', 'success');
+        }
+
+        // Модалка полезной привычки
+        function openGoodHabitModal(habitId = null) {
+            const modal = document.getElementById('goodHabitModal');
+            const title = document.getElementById('goodModalTitle');
+
+            if (habitId) {
+                const g = appState.goodHabits.find(x => x.id === habitId);
+                if (!g) return;
+                title.textContent = 'Настроить полезную привычку';
+                document.getElementById('goodHabitId').value = g.id;
+                document.getElementById('goodHabitIcon').value = g.icon || '📚';
+                document.getElementById('goodHabitName').value = g.name;
+                document.getElementById('goodHabitTargetMinutes').value = g.targetMinutes || 30;
+                document.getElementById('goodHabitMotivation').value = g.motivation || '';
+                selectGoodColor(g.color || 'sky');
+            } else {
+                title.textContent = 'Новая полезная привычка';
+                document.getElementById('goodHabitId').value = '';
+                document.getElementById('goodHabitIcon').value = '📚';
+                document.getElementById('goodHabitName').value = '';
+                document.getElementById('goodHabitTargetMinutes').value = 30;
+                document.getElementById('goodHabitMotivation').value = '';
+                selectGoodColor('sky');
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeGoodHabitModal() {
+            const modal = document.getElementById('goodHabitModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function fillGoodPreset(name, icon, color, targetMinutes, motivation) {
+            document.getElementById('goodHabitName').value = name;
+            document.getElementById('goodHabitIcon').value = icon;
+            document.getElementById('goodHabitTargetMinutes').value = targetMinutes;
+            document.getElementById('goodHabitMotivation').value = motivation;
+            selectGoodColor(color);
+        }
+
+        function selectGoodColor(color) {
+            document.getElementById('goodHabitColor').value = color;
+            document.querySelectorAll('.good-color-btn').forEach(btn => {
+                if (btn.dataset.goodColor === color) {
+                    btn.className = `good-color-btn w-8 h-8 rounded-full bg-${color}-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-white`;
+                } else {
+                    btn.className = `good-color-btn w-8 h-8 rounded-full bg-${btn.dataset.goodColor}-500 opacity-60 hover:opacity-100`;
+                }
+            });
+        }
+
+        function saveGoodHabitForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('goodHabitId').value;
+            const icon = document.getElementById('goodHabitIcon').value;
+            const name = document.getElementById('goodHabitName').value.trim();
+            const targetMinutes = Math.max(5, Number(document.getElementById('goodHabitTargetMinutes').value || 30));
+            const motivation = document.getElementById('goodHabitMotivation').value.trim();
+            const color = document.getElementById('goodHabitColor').value || 'sky';
+
+            if (id) {
+                const existing = appState.goodHabits.find(g => g.id === id);
+                if (existing) {
+                    existing.icon = icon;
+                    existing.name = name;
+                    existing.targetMinutes = targetMinutes;
+                    existing.motivation = motivation;
+                    existing.color = color;
+                }
+            } else {
+                appState.goodHabits.unshift({
+                    id: 'good-' + Date.now(),
+                    name,
+                    icon,
+                    targetMinutes,
+                    motivation,
+                    color,
+                    logs: {}
+                });
+                addHistoryEntry('good_start', `${icon} ${name}`, `Создана полезная привычка (норма: ${targetMinutes} мин/день)`);
+            }
+
+            saveState();
+            closeGoodHabitModal();
+            renderAll();
+            showToast('Полезная привычка сохранена!', 'success');
+        }
+
+        // Модалка срыва
+        function openRelapseModal(habitId) {
+            document.getElementById('relapseHabitId').value = habitId;
+            document.getElementById('relapseReason').value = '';
+            const modal = document.getElementById('relapseModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeRelapseModal() {
+            const modal = document.getElementById('relapseModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function confirmRelapse() {
+            const id = document.getElementById('relapseHabitId').value;
+            const reason = document.getElementById('relapseReason').value.trim();
+            const habit = appState.habits.find(h => h.id === id);
+            if (!habit) return;
+
+            const currentDays = calculateBadHabitDays(habit);
+            habit.bestStreakDays = Math.max(currentDays, Number(habit.bestStreakDays || 0));
+            habit.startDate = Date.now();
+            habit.relapseCount = Number(habit.relapseCount || 0) + 1;
+
+            addHistoryEntry('relapse', `${habit.icon} ${habit.name}`, `Перезапуск таймера${reason ? '. Причина: ' + reason : ''}`);
+            saveState();
+            closeRelapseModal();
+            renderAll();
+            showToast('Таймер перезапущен. Новый старт — вы справитесь!', 'info');
+        }
+
+        // Модалка удаления
+        function openDeleteModal(id, type = 'bad') {
+            document.getElementById('deleteHabitId').value = id;
+            document.getElementById('deleteHabitType').value = type;
+            const modal = document.getElementById('deleteModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function confirmDeleteHabit() {
+            const id = document.getElementById('deleteHabitId').value;
+            const type = document.getElementById('deleteHabitType').value;
+
+            if (type === 'good') {
+                appState.goodHabits = appState.goodHabits.filter(g => g.id !== id);
+                if (activeSession && activeSession.habitId === id) {
+                    activeSession = null;
+                    saveActiveSessionState();
+                }
+            } else {
+                appState.habits = appState.habits.filter(h => h.id !== id);
+            }
+
+            saveState();
+            closeDeleteModal();
+            renderAll();
+            showToast('Привычка удалена', 'info');
+        }
+
+        function clearHistoryLog() {
+            appState.history = [];
+            saveState();
+            renderAll();
+            showToast('Журнал событий очищен', 'info');
+        }
+
+        function restoreDemoData() {
+            appState = createDefaultState();
+            saveState();
+            renderAll();
+            showToast('Загружены демонстрационные данные', 'success');
+        }
+
+        // ==========================================
+        // МОТИВАЦИОННЫЕ ЦИТАТЫ
+        // ==========================================
+        function nextQuote() {
+            currentQuoteIdx = (currentQuoteIdx + 1) % QUOTES.length;
+            const q = QUOTES[currentQuoteIdx];
+            const bText = document.getElementById('bannerQuoteText');
+            const bAuthor = document.getElementById('bannerQuoteAuthor');
+            const mText = document.getElementById('quoteText');
+            const mAuthor = document.getElementById('quoteAuthor');
+
+            if (bText) bText.textContent = q.text;
+            if (bAuthor) bAuthor.textContent = q.author;
+            if (mText) mText.textContent = q.text;
+            if (mAuthor) mAuthor.textContent = `— ${q.author}`;
+        }
+
+        function openQuoteModal() {
+            const modal = document.getElementById('quoteModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeQuoteModal() {
+            const modal = document.getElementById('quoteModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // ==========================================
+        // АВТОРИЗАЦИЯ И ЗАЛ СЛАВЫ ДРУЗЕЙ
+        // ==========================================
+        function openAuthModal() {
+            updateAuthModalView();
+            const modal = document.getElementById('authModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('authModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function switchAuthMode(mode) {
+            authMode = mode;
+            const loginBtn = document.getElementById('authTabLogin');
+            const regBtn = document.getElementById('authTabRegister');
+            const extra = document.getElementById('registerExtraFields');
+            const submit = document.getElementById('authSubmitBtn');
+            const err = document.getElementById('authErrorMsg');
+            if (err) err.classList.add('hidden');
+
+            if (mode === 'register') {
+                regBtn.className = 'py-2 rounded-lg text-xs font-bold bg-emerald-500 text-slate-950 transition-all';
+                loginBtn.className = 'py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all';
+                extra.classList.remove('hidden');
+                submit.textContent = 'Создать аккаунт и сохранить привычки';
+            } else {
+                loginBtn.className = 'py-2 rounded-lg text-xs font-bold bg-emerald-500 text-slate-950 transition-all';
+                regBtn.className = 'py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all';
+                extra.classList.add('hidden');
+                submit.textContent = 'Войти в свои привычки';
+            }
+        }
+
+        function selectAvatar(emoji) {
+            document.getElementById('authAvatarInput').value = emoji;
+            document.querySelectorAll('.avatar-btn').forEach(btn => {
+                if (btn.dataset.avatar === emoji) {
+                    btn.className = 'avatar-btn w-10 h-10 rounded-xl bg-slate-800 border-2 border-emerald-500 text-xl flex items-center justify-center';
+                } else {
+                    btn.className = 'avatar-btn w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 text-xl flex items-center justify-center';
+                }
+            });
+        }
+
+        function updateAuthHeaderUI() {
+            const avatarEl = document.getElementById('headerAvatar');
+            const nameEl = document.getElementById('headerUserName');
+            const dotEl = document.getElementById('cloudStatusDot');
+            const footerEl = document.getElementById('footerUserIdDisplay');
+
+            if (currentUser) {
+                avatarEl.textContent = currentUser.avatar || '🦁';
+                nameEl.textContent = currentUser.displayName || currentUser.login;
+                dotEl.className = 'w-2 h-2 rounded-full bg-emerald-400';
+                footerEl.textContent = backendAvailable
+                    ? `Облако PostgreSQL: @${currentUser.login}`
+                    : `Профиль: @${currentUser.login}`;
+            } else {
+                avatarEl.textContent = '👤';
+                nameEl.textContent = 'Войти';
+                dotEl.className = 'w-2 h-2 rounded-full bg-amber-400';
+                footerEl.textContent = backendAvailable ? 'Сервер подключен (Гость)' : 'Локальный режим';
+            }
+        }
+
+        function updateAuthModalView() {
+            const loggedInView = document.getElementById('authLoggedInView');
+            const formView = document.getElementById('authFormView');
+
+            if (currentUser) {
+                loggedInView.classList.remove('hidden');
+                formView.classList.add('hidden');
+                document.getElementById('profileViewAvatar').textContent = currentUser.avatar || '🦁';
+                document.getElementById('profileViewName').textContent = currentUser.displayName || currentUser.login;
+                document.getElementById('profileViewLogin').textContent = currentUser.login;
+                document.getElementById('shareLeaderboardToggle').checked = currentUser.shareLeaderboard !== false;
+            } else {
+                loggedInView.classList.add('hidden');
+                formView.classList.remove('hidden');
+            }
+        }
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const login = document.getElementById('authLoginInput').value.trim().toLowerCase();
+            const password = document.getElementById('authPasswordInput').value;
+            const displayName = document.getElementById('authDisplayName').value.trim() || login;
+            const avatar = document.getElementById('authAvatarInput').value || '🦁';
+            const errEl = document.getElementById('authErrorMsg');
+            errEl.classList.add('hidden');
+
+            if (backendAvailable) {
+                try {
+                    const endpoint = authMode === 'register' ? '/api/auth/register' : '/api/auth/login';
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            login,
+                            password,
+                            displayName,
+                            avatar,
+                            initialState: appState,
+                            summary: getUserSummarySnapshot()
+                        })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        errEl.textContent = data.error || 'Ошибка авторизации';
+                        errEl.classList.remove('hidden');
+                        return;
+                    }
+                    localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+                    currentUser = data.user;
+                    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+                    if (data.state && (Array.isArray(data.state.habits) || Array.isArray(data.state.goodHabits))) {
+                        appState = {
+                            habits: Array.isArray(data.state.habits) ? data.state.habits : [],
+                            goodHabits: Array.isArray(data.state.goodHabits) ? data.state.goodHabits : [],
+                            history: Array.isArray(data.state.history) ? data.state.history : []
+                        };
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                    }
+                    if (Array.isArray(data.leaderboard)) {
+                        serverLeaderboard = data.leaderboard;
+                    }
+                    updateAuthHeaderUI();
+                    closeAuthModal();
+                    renderAll();
+                    showToast(`Добро пожаловать, ${currentUser.displayName}!`, 'success');
+                    return;
+                } catch (err) {
+                    // Переключаемся на локальный реестр, если сервер недоступен
+                }
+            }
+
+            // Локальный режим аккаунтов (для работы без запущенного бекенда)
+            let users = {};
+            try {
+                users = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '{}');
+            } catch (e) {
+                users = {};
+            }
+
+            if (authMode === 'register') {
+                if (users[login]) {
+                    errEl.textContent = 'Этот логин уже занят.';
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+                users[login] = {
+                    login,
+                    password,
+                    displayName,
+                    avatar,
+                    shareLeaderboard: true,
+                    state: appState,
+                    summary: getUserSummarySnapshot(),
+                    updatedAt: Date.now()
+                };
+                localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+                currentUser = { login, displayName, avatar, shareLeaderboard: true };
+            } else {
+                const u = users[login];
+                if (!u || u.password !== password) {
+                    errEl.textContent = 'Неверный логин или пароль';
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+                currentUser = { login: u.login, displayName: u.displayName, avatar: u.avatar, shareLeaderboard: u.shareLeaderboard !== false };
+                if (u.state) {
+                    appState = u.state;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                }
+            }
+
+            localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+            updateAuthHeaderUI();
+            closeAuthModal();
+            renderAll();
+            showToast(`Вы вошли как ${currentUser.displayName}`, 'success');
+        }
+
+        function syncCurrentUserToLocalRegistry() {
+            if (!currentUser) return;
+            try {
+                const users = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '{}');
+                if (users[currentUser.login]) {
+                    users[currentUser.login].state = appState;
+                    users[currentUser.login].summary = getUserSummarySnapshot();
+                    users[currentUser.login].shareLeaderboard = currentUser.shareLeaderboard !== false;
+                    users[currentUser.login].updatedAt = Date.now();
+                    localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+                }
+            } catch (e) {}
+        }
+
+        function togglePublicLeaderboard(checked) {
+            if (!currentUser) return;
+            currentUser.shareLeaderboard = checked;
+            localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+            saveState();
+            renderFriendsLeaderboard();
+        }
+
+        function logoutAccount() {
+            currentUser = null;
+            localStorage.removeItem(CURRENT_USER_KEY);
+            localStorage.removeItem(AUTH_TOKEN_KEY);
+            updateAuthHeaderUI();
+            closeAuthModal();
+            renderAll();
+            showToast('Вы вышли из аккаунта', 'info');
+        }
+
+        function renderFriendsLeaderboard() {
+            const grid = document.getElementById('friendsLeaderboardGrid');
+            const badge = document.getElementById('badgeCountFriends');
+            if (!grid) return;
+
+            let list = [];
+            if (backendAvailable && serverLeaderboard.length > 0) {
+                list = serverLeaderboard;
+            } else {
+                try {
+                    const users = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '{}');
+                    list = Object.values(users)
+                        .filter(u => u.shareLeaderboard !== false)
+                        .map(u => ({
+                            login: u.login,
+                            displayName: u.displayName || u.login,
+                            avatar: u.avatar || '🦁',
+                            summary: u.summary || { cleanDays: 0, goodTodayMinutes: 0, totalGoodHours: 0, habitsCount: 0 }
+                        }));
+                } catch (e) {
+                    list = [];
+                }
+
+                if (list.length === 0) {
+                    list = [
+                        {
+                            login: currentUser?.login || 'you',
+                            displayName: currentUser?.displayName || 'Вы (Ваш профиль)',
+                            avatar: currentUser?.avatar || '🦁',
+                            summary: getUserSummarySnapshot()
+                        }
+                    ];
+                }
+            }
+
+            if (badge) badge.textContent = String(list.length);
+
+            grid.innerHTML = list.map((u, idx) => {
+                const isMe = currentUser && u.login === currentUser.login;
+                const s = u.summary || { cleanDays: 0, goodTodayMinutes: 0, totalGoodHours: 0 };
+                return `
+                    <div class="rounded-2xl p-4 bg-slate-900/90 border ${isMe ? 'border-emerald-500/50' : 'border-slate-800'} flex flex-col justify-between gap-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-2xl">
+                                    ${escapeHtml(u.avatar || '🦁')}
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <h4 class="font-bold text-white text-sm">${escapeHtml(u.displayName)}</h4>
+                                        ${isMe ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">Вы</span>' : ''}
+                                    </div>
+                                    <p class="text-xs text-slate-400 font-mono">@${escapeHtml(u.login)}</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-extrabold px-2.5 py-1 rounded-xl bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                                #${idx + 1}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-center pt-2 border-t border-slate-800/80">
+                            <div class="bg-slate-950/70 rounded-xl p-2">
+                                <div class="text-sm font-extrabold text-emerald-400">${Number(s.cleanDays || 0)}</div>
+                                <div class="text-[10px] text-slate-400">чистых дн.</div>
+                            </div>
+                            <div class="bg-slate-950/70 rounded-xl p-2">
+                                <div class="text-sm font-extrabold text-sky-400">${Number(s.goodTodayMinutes || 0)} м</div>
+                                <div class="text-[10px] text-slate-400">сегодня</div>
+                            </div>
+                            <div class="bg-slate-950/70 rounded-xl p-2">
+                                <div class="text-sm font-extrabold text-purple-400">${Number(s.totalGoodHours || 0)} ч</div>
+                                <div class="text-[10px] text-slate-400">в развитие</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // ЭКСПОРТ, ИМПОРТ И УВЕДОМЛЕНИЯ
+        // ==========================================
+        function exportData() {
+            const dataStr = JSON.stringify(appState, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `chistiy-list-backup-${getTodayKey()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Резервная копия JSON сохранена', 'success');
+        }
+
+        function handleImportFile(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (Array.isArray(parsed.habits) || Array.isArray(parsed.goodHabits)) {
+                        appState = {
+                            habits: Array.isArray(parsed.habits) ? parsed.habits : [],
+                            goodHabits: Array.isArray(parsed.goodHabits) ? parsed.goodHabits : [],
+                            history: Array.isArray(parsed.history) ? parsed.history : []
+                        };
+                        saveState();
+                        renderAll();
+                        showToast('Данные успешно импортированы!', 'success');
+                    } else {
+                        showToast('Некорректный формат файла бэкапа', 'error');
+                    }
+                } catch (err) {
+                    showToast('Ошибка чтения JSON-файла', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function triggerCelebrationConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 55,
+                    spread: 65,
+                    origin: { y: 0.7 }
+                });
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'border-emerald-500/40 bg-slate-900/95 text-emerald-300',
+                error: 'border-rose-500/40 bg-slate-900/95 text-rose-300',
+                info: 'border-sky-500/40 bg-slate-900/95 text-sky-300'
+            };
+            toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border shadow-xl text-xs font-semibold flex items-center gap-2 transition-all duration-300 ${colors[type] || colors.info}`;
+            toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        // ==========================================
+        // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАПУСКЕ
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            updateAuthHeaderUI();
+            renderAll();
+            initBackendConnection();
+            setInterval(updateLiveTimers, 1000);
+        });
+    </script>
+</body>
+</html>
